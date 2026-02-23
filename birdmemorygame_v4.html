@@ -1,0 +1,1081 @@
+﻿<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Bird Memory Game ğŸ¦</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg0: #eceee7;
+        --bg1: #e3e9e0;
+        --card: #fbfbf7;
+        --ink: #23312b;
+        --muted: #6a7a70;
+
+        --sage: #4f7c67;
+        --sage-2: #6aa58a;
+        --line: rgba(35, 49, 43, 0.12);
+
+        --shadow-1: 0 8px 24px rgba(26, 36, 31, 0.1);
+        --shadow-2: 0 2px 10px rgba(26, 36, 31, 0.08);
+
+        --r-lg: 20px;
+        --r-md: 16px;
+        --r-sm: 12px;
+        --sp-1: 8px;
+        --sp-2: 12px;
+        --sp-3: 16px;
+        --sp-4: 24px;
+
+        /* surfaces */
+        --surface: #ffffff;
+
+        /* card front gradient */
+        --card-front-1: #e4f2ea;
+        --card-front-2: #b5cdbf;
+
+        /* info panel */
+        --panel-bg: #f7fced;
+        --panel-bg-2: #eef7de;
+        --panel-border: rgba(35, 49, 43, 0.1);
+
+        --font-sans:
+          "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+        --card-ratio: 1 / 0.78;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--font-sans);
+
+        background: radial-gradient(
+          1200px 800px at 20% 0%,
+          var(--bg1) 0%,
+          var(--bg0) 55%,
+          var(--bg0) 100%
+        );
+
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        padding: clamp(4px, 1.2vw, 12px);
+
+        color: var(--ink);
+      }
+
+      .game-wrapper {
+        max-width: 1100px;
+        width: min(1100px, 100%);
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: clamp(12px, 2vw, 20px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        padding: clamp(var(--sp-2), 1.8vw, var(--sp-4));
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-2);
+        position: relative;
+        overflow: hidden;
+        /*max-height: calc(100vh - 32px);*/
+      }
+
+      header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: var(--sp-2);
+        align-items: center;
+        margin-top: 0;
+      }
+
+      .title-block {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-1);
+        align-self: start;
+      }
+      h1 {
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: var(--sp-1);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 0;
+        color: #2a3a33;
+      }
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 34px;
+        padding: 4px;
+        border-radius: 10px;
+        background: #e7f4ef;
+      }
+      .brand-mark img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+      }
+      .subtitle {
+        font-size: 0.9rem;
+        color: #5f747e;
+        line-height: 1.45;
+      }
+
+      .stats {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        gap: var(--sp-1);
+        align-items: center;
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: #3d535c;
+      }
+
+      .stat-chip {
+        padding: 6px 11px;
+        border-radius: 999px;
+        background: #edf4f1;
+        border: 1px solid rgba(35, 49, 43, 0.08);
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .stat-label {
+        opacity: 0.8;
+      }
+      .stat-value {
+        font-weight: 600;
+      }
+
+      #restart-btn {
+        border: none;
+        border-radius: 999px;
+        padding: 8px 13px;
+        font-size: 0.86rem;
+        cursor: pointer;
+        background: #117f77;
+        color: #fff;
+        font-weight: 700;
+        box-shadow: 0 3px 8px rgba(17, 127, 119, 0.22);
+        transition:
+          transform 0.1s,
+          box-shadow 0.1s,
+          background 0.2s;
+        white-space: nowrap;
+        flex: 0 0 auto;
+      }
+      #restart-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 12px rgba(17, 127, 119, 0.24);
+        background: #0f736c;
+      }
+      #restart-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 6px rgba(17, 127, 119, 0.22);
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: minmax(0, 2.1fr) minmax(260px, 0.9fr);
+        gap: var(--sp-3);
+      }
+      @media (max-width: 900px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* === BOARD === */
+      .game-board {
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(clamp(100px, 14vw, 150px), 1fr)
+        );
+        gap: clamp(8px, 1.2vw, 12px);
+        align-items: stretch;
+        justify-content: center; /* board'u ortalar, kartlar büyümez */
+        position: relative;
+      }
+
+      .card {
+        position: relative;
+        border: none;
+        background: transparent;
+        padding: 0;
+        cursor: pointer;
+        perspective: 800px;
+        aspect-ratio: var(--card-ratio);
+        height: auto;
+        width: 100%;
+        transition: transform 0.18s ease;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .card:not(.matched):not(.flipped):hover {
+          transform: translateY(-4px);
+        }
+      }
+      .card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        border-radius: 16px;
+        transform-style: preserve-3d;
+        transition: transform 0.35s ease;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+        background: #fff;
+        /*border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);*/
+      }
+
+      .card-front,
+      .card-back {
+        position: absolute;
+        inset: 0;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        border-radius: 16px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .card-front {
+        background: linear-gradient(
+          135deg,
+          var(--card-front-1),
+          var(--card-front-2)
+        );
+        outline: 1px solid rgba(35, 49, 43, 0.1);
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .card:not(.matched):not(.flipped):hover .card-front {
+          background:
+            url("./assets/bird-prints.svg") no-repeat 88% 18% / 64px,
+            linear-gradient(135deg, var(--card-front-1), var(--card-front-2));
+        }
+      }
+
+      .card-back {
+        transform: rotateY(180deg);
+        background: #fff;
+        padding: 8px;
+      }
+
+      .card.flipped .card-inner,
+      .card.matched .card-inner {
+        transform: rotateY(180deg);
+      }
+
+      .card.matched .card-inner {
+        box-shadow:
+          0 0 0 1.5px var(--match-color, #4caf50),
+          0 10px 18px rgba(26, 36, 31, 0.18);
+      }
+
+      .card:disabled {
+        cursor: default;
+      }
+
+      .card-image-wrapper {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 12px;
+        position: relative;
+      }
+
+      .card-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .card-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 6px;
+        gap: 4px;
+      }
+
+      .card-label-main {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #263238;
+        letter-spacing: -0.01em;
+      }
+
+      .card-label-latin {
+        font-size: 0.78rem;
+        color: #78909c;
+        opacity: 0.7;
+        font-style: italic;
+        letter-spacing: 0.01em;
+      }
+
+      /* Hoverde parlama efekti*/
+      /*.card:not(.matched):not(.flipped):hover .card-front {
+        filter: brightness(1.05);
+      }*/
+
+      /* === INFO === */
+      .info-panel {
+        background: linear-gradient(180deg, #f7fced, #f1f8e9);
+        border-radius: 16px;
+        padding: var(--sp-2);
+        border: 1px solid rgba(35, 49, 43, 0.1);
+        box-shadow: 0 10px 22px rgba(26, 36, 31, 0.06);
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-2);
+      }
+      .info-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sp-1);
+      }
+      .info-content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-2);
+      }
+      .info-toggle {
+        display: none;
+        border: 1px solid rgba(35, 49, 43, 0.14);
+        background: rgba(255, 255, 255, 0.7);
+        color: #2a3a33;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.74rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .info-panel h2 {
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #1f5a2b;
+        margin-bottom: 2px;
+      }
+
+      .info-panel .info-name {
+        display: block;
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: #22312b;
+        line-height: 1.2;
+        margin-top: 2px;
+      }
+
+      .info-panel .info-latin {
+        margin-top: 2px;
+        font-size: 0.8rem;
+        color: rgba(35, 49, 43, 0.65);
+        font-style: italic;
+        opacity: 0.7;
+      }
+
+      .info-panel p {
+        font-size: 0.86rem;
+        line-height: 1.55;
+        color: rgba(35, 49, 43, 0.85);
+        margin-top: var(--sp-1);
+      }
+      .info-panel .hint {
+        font-size: 0.78rem;
+        color: rgba(35, 49, 43, 0.75);
+        background: rgba(255, 255, 255, 0.55);
+        border: 1px solid rgba(35, 49, 43, 0.08);
+        padding: var(--sp-1) var(--sp-2);
+        border-radius: 12px;
+      }
+
+      .end-message {
+        margin-top: var(--sp-1);
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: #1b5e20;
+        background: rgba(27, 94, 32, 0.08);
+        border: 1px solid rgba(27, 94, 32, 0.18);
+        padding: var(--sp-1) var(--sp-2);
+        border-radius: 12px;
+      }
+
+      /* === MATCH POPUP (board ortası) === */
+      .match-highlight {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -48%);
+        width: 100%;
+        max-width: 560px;
+        display: flex;
+        justify-content: center;
+        pointer-events: none;
+        opacity: 0;
+        transition:
+          opacity 0.25s,
+          transform 0.25s;
+        z-index: 30;
+        padding: 8px;
+
+        /* blur efektini azaltarak karlanma hissini düşür */
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background: rgba(255, 255, 255, 0.55);
+        border-radius: 24px;
+      }
+      .match-highlight.show {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+
+      .match-inner {
+        background: rgba(255, 255, 255, 0.99);
+        border-radius: 22px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+        max-width: 560px;
+        animation: pop 0.4s ease-out;
+      }
+
+      .match-image-wrapper {
+        flex: 0 0 190px;
+        height: 190px;
+        border-radius: 18px;
+        overflow: hidden;
+      }
+      .match-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+      }
+
+      .match-text {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .match-name {
+        font-weight: 800;
+        font-size: 1rem;
+        color: #1b5e20;
+      }
+      .match-latin {
+        font-size: 0.8rem;
+        color: #455a64;
+        font-style: italic;
+      }
+      .match-desc {
+        font-size: 0.78rem;
+        color: #546e7a;
+      }
+
+      @keyframes pop {
+        0% {
+          transform: translateY(8px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 700px) {
+        :root {
+          --card-ratio: 3 / 4;
+        }
+
+        .match-inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .match-image-wrapper {
+          flex: 0 0 160px;
+          height: 160px;
+          align-self: stretch;
+        }
+      }
+
+      @media (max-width: 900px) {
+        header {
+          grid-template-columns: 1fr;
+          gap: var(--sp-1);
+        }
+
+        .stats {
+          justify-content: flex-start;
+          flex-wrap: wrap;
+          gap: var(--sp-1);
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: max(6px, env(safe-area-inset-left))
+            max(6px, env(safe-area-inset-right))
+            max(8px, env(safe-area-inset-bottom))
+            max(8px, env(safe-area-inset-top));
+        }
+
+        .game-wrapper {
+          border-radius: 14px;
+          padding: var(--sp-1) var(--sp-1) var(--sp-2);
+          max-height: none;
+        }
+
+        main {
+          gap: var(--sp-2);
+        }
+
+        .game-board {
+          grid-template-columns: repeat(2, minmax(96px, 128px));
+          justify-content: center;
+          gap: 8px;
+        }
+
+        .card {
+          aspect-ratio: 1 / 0.72;
+        }
+
+        #restart-btn,
+        .card {
+          min-height: 44px;
+        }
+
+        .info-panel {
+          padding: var(--sp-2);
+        }
+
+        .info-header h2 {
+          margin-bottom: 0;
+        }
+
+        .info-toggle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .info-panel.collapsed .info-content {
+          display: none;
+        }
+
+        .info-panel.collapsed {
+          gap: 0;
+        }
+      }
+
+      @media (max-width: 430px) {
+        .game-board {
+          grid-template-columns: repeat(2, minmax(88px, 116px));
+          gap: 8px;
+        }
+
+        h1 {
+          font-size: 1.25rem;
+        }
+
+        .subtitle {
+          font-size: 0.84rem;
+        }
+
+        .card-label-main {
+          font-size: 0.88rem;
+        }
+
+        .card-label-latin {
+          font-size: 0.72rem;
+        }
+
+        .match-inner {
+          padding: 12px;
+          gap: 10px;
+        }
+
+        .match-image-wrapper {
+          flex: 0 0 130px;
+          height: 130px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-wrapper">
+      <header>
+        <div class="title-block">
+          <h1>
+            <span class="brand-mark" aria-hidden="true">
+              <img src="./assets/bird-logo.svg" alt="" />
+            </span>
+            Bird Memory Game
+          </h1>
+          <div class="subtitle">
+            Kuş görselleri ile kuş isimlerini eşleştir, hem hafızan hem kuş
+            bilgin gelişsin.
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat-chip">
+            <span class="stat-label">Hamle:</span
+            ><span class="stat-value" id="moves-count">0</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Eşleşme:</span
+            ><span class="stat-value" id="matches-count">0</span>
+          </div>
+          <button id="restart-btn" type="button">Yeniden başlat</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="game-board" id="game-board"></section>
+
+        <aside class="info-panel" id="info-panel">
+          <div class="info-header">
+            <h2><span class="icon">📚</span> Kuş Bilgi Kartı</h2>
+            <button
+              type="button"
+              class="info-toggle"
+              id="info-toggle"
+              aria-expanded="true"
+              aria-controls="info-content"
+            >
+              Detayı göster
+            </button>
+          </div>
+          <div class="info-content" id="info-content">
+            <div>
+              <span class="info-name"
+                >Bir eşleşme yap ve bu bölümü dolduralım.</span
+              >
+              <div class="info-latin"></div>
+            </div>
+            <p>
+              Her doğru eşleşmede, o kuş türü hakkında küçük bir not göreceksin.
+              Böylece oyun oynarken tüylerini tanıdığın gibi türlerini de
+              tanıyacaksın.
+            </p>
+            <div class="hint">
+              İpucu: Kartlardan biri her zaman görsel, diğeri ise isim kartıdır.
+            </div>
+            <div class="end-message" id="end-message" style="display: none"></div>
+          </div>
+        </aside>
+      </main>
+
+      <!-- POP-UP (JS ile .game-board içine taşınıyor) -->
+      <div class="match-highlight" id="match-highlight">
+        <div class="match-inner">
+          <div class="match-image-wrapper">
+            <img id="match-image" src="" alt="" />
+          </div>
+          <div class="match-text">
+            <div class="match-name" id="match-name"></div>
+            <div class="match-latin" id="match-latin"></div>
+            <div class="match-desc" id="match-description"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ---- KUŞLAR (renk dahil) ----
+      const birds = [
+        {
+          id: "calikusu",
+          name: "Çalıkuşu",
+          englishName: "Goldcrest",
+          latinName: "Regulus regulus",
+          image: "images/calikusu.jpg",
+          info: "Avrupa'nın en küçük kuşlarından biri; enerjik hareketleri ve ince sesiyle bilinir.",
+          color: "#F8EE7E",
+        },
+        {
+          id: "mavi-bastankara",
+          name: "Mavi Baştankara",
+          englishName: "Eurasian Blue Tit",
+          latinName: "Cyanistes caeruleus",
+          image: "images/mavi-bastankara.jpg",
+          info: "Mavi ve sarı renkleriyle çok çekici, hareketli ve meraklı bir baştankara türü.",
+          color: "#4D7EBA",
+        },
+        {
+          id: "uzunkuyruklu-bastankara",
+          name: "Uzunkuyruklu Baştankara",
+          englishName: "Long-tailed Tit",
+          latinName: "Aegithalos caudatus",
+          image: "images/uzunkuyruklu-bastankara.jpg",
+          info: "Minik gövdesine göre uzun kuyruğuyla dikkat çeken, toplu halde dolaşmayı seven bir tür.",
+          color: "#805A4E",
+        },
+        {
+          id: "buyuk-bastankara",
+          name: "Büyük Baştankara",
+          englishName: "Great Tit",
+          latinName: "Parus major",
+          image: "images/buyuk-bastankara.jpg",
+          info: "Siyah başı ve sarı gövdesiyle sık görülen, güçlü ötüşlü bir baştankara.",
+          color: "#C1B76F",
+        },
+        {
+          id: "kara-kizilkuyruk",
+          name: "Kara Kızılkuyruk",
+          englishName: "Black Redstart",
+          latinName: "Phoenicurus ochruros",
+          image: "images/kara-kizilkuyruk.jpg",
+          info: "Koyu renkli gövdesi ve turuncu kuyruğuyla şehirlerde binaların etrafında da görülebilen bir tür.",
+          color: "#D48B40",
+        },
+        {
+          id: "kizilgerdan",
+          name: "Kızılgerdan",
+          englishName: "European Robin",
+          latinName: "Erithacus rubecula",
+          image: "images/kizilgerdan.jpg",
+          info: "Kırmızı göğsüyle tanınan, özellikle kış aylarında bahçelerde sık görülen sevimli bir tür.",
+          color: "#E68B35",
+        },
+        {
+          id: "sigircik",
+          name: "Sığırcık",
+          englishName: "Common Starling",
+          latinName: "Sturnus vulgaris",
+          image: "images/sigircik.jpg",
+          info: "Parlak, benekli tüyleri ve kalabalık sürüleriyle bilinen, taklitçi ötüşlü zeki bir kuş.",
+          color: "#687D7A",
+        },
+        {
+          id: "civgin",
+          name: "Çıvgın",
+          englishName: "Common Chiffchaff",
+          latinName: "Phylloscopus collybita",
+          image: "images/civgin.jpg",
+          info: "Yapraklar arasında sürekli hareket eden, ince ve tekrarlı ötüşüyle tanınan küçük bir ötücü.",
+          color: "#A39767",
+        },
+      ];
+
+      // ---- OYUN DURUMU ----
+      let cards = [];
+      let flippedIndices = [];
+      let lockBoard = false;
+      let moves = 0;
+      let matches = 0;
+      let gameOver = false;
+
+      const boardEl = document.getElementById("game-board");
+      const movesEl = document.getElementById("moves-count");
+      const matchesEl = document.getElementById("matches-count");
+      const infoPanelEl = document.getElementById("info-panel");
+      const infoNameEl = infoPanelEl.querySelector(".info-name");
+      const infoLatinEl = infoPanelEl.querySelector(".info-latin");
+      const infoTextEl = infoPanelEl.querySelector("p");
+      const endMessageEl = document.getElementById("end-message");
+      const infoToggleBtn = document.getElementById("info-toggle");
+      const infoMobileMq = window.matchMedia("(max-width: 768px)");
+      let infoExpanded = true;
+
+      const highlightEl = document.getElementById("match-highlight");
+      const highlightImgEl = document.getElementById("match-image");
+      const highlightNameEl = document.getElementById("match-name");
+      const highlightLatinEl = document.getElementById("match-latin");
+      const highlightDescEl = document.getElementById("match-description");
+      let highlightTimeout = null;
+
+      function setInfoExpanded(nextExpanded) {
+        infoExpanded = nextExpanded;
+        infoToggleBtn.setAttribute("aria-expanded", String(infoExpanded));
+        infoToggleBtn.textContent = infoExpanded ? "Detayı gizle" : "Detayı göster";
+
+        if (infoMobileMq.matches) {
+          infoPanelEl.classList.toggle("collapsed", !infoExpanded);
+        } else {
+          infoPanelEl.classList.remove("collapsed");
+        }
+      }
+
+      function syncInfoPanelMode() {
+        if (infoMobileMq.matches) {
+          infoToggleBtn.hidden = false;
+          infoPanelEl.classList.toggle("collapsed", !infoExpanded);
+        } else {
+          infoToggleBtn.hidden = true;
+          infoPanelEl.classList.remove("collapsed");
+        }
+      }
+
+      // ---- Yardımcılar ----
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      function createCards() {
+        cards = [];
+        birds.forEach((bird, birdIndex) => {
+          cards.push({
+            cardId: `${bird.id}-img`,
+            birdId: bird.id,
+            birdIndex,
+            type: "image",
+          });
+          cards.push({
+            cardId: `${bird.id}-name`,
+            birdId: bird.id,
+            birdIndex,
+            type: "name",
+          });
+        });
+        shuffle(cards);
+      }
+
+      function renderBoard() {
+        boardEl.innerHTML = "";
+        cards.forEach((card, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "card";
+          button.dataset.index = index;
+          button.dataset.birdIndex = card.birdIndex;
+
+          const inner = document.createElement("div");
+          inner.className = "card-inner";
+
+          const front = document.createElement("div");
+          front.className = "card-front";
+          front.textContent = "";
+
+          const back = document.createElement("div");
+          back.className = "card-back";
+
+          const bird = birds[card.birdIndex];
+
+          if (card.type === "image") {
+            const w = document.createElement("div");
+            w.className = "card-image-wrapper";
+            const img = document.createElement("img");
+            img.src = bird.image;
+            img.alt = bird.name;
+            w.appendChild(img);
+            back.appendChild(w);
+          } else {
+            const label = document.createElement("div");
+            label.className = "card-label";
+            const main = document.createElement("div");
+            main.className = "card-label-main";
+            main.textContent = bird.name;
+            label.appendChild(main);
+            if (bird.latinName) {
+              const latin = document.createElement("div");
+              latin.className = "card-label-latin";
+              latin.textContent = bird.latinName;
+              label.appendChild(latin);
+            }
+            back.appendChild(label);
+          }
+
+          inner.appendChild(front);
+          inner.appendChild(back);
+          button.appendChild(inner);
+          button.addEventListener("click", onCardClick);
+          button.addEventListener("mouseenter", onCardHover);
+          boardEl.appendChild(button);
+        });
+      }
+
+      function resetGame() {
+        moves = 0;
+        matches = 0;
+        flippedIndices = [];
+        lockBoard = false;
+        gameOver = false;
+        movesEl.textContent = moves;
+        matchesEl.textContent = matches;
+        endMessageEl.style.display = "none";
+        endMessageEl.textContent = "";
+        infoNameEl.textContent = "Bir eşleşme yap ve bu bölümü dolduralım.";
+        infoLatinEl.textContent = "";
+        infoTextEl.textContent =
+          "Her doğru eşleşmede, o kuş türü hakkında küçük bir not göreceksin. Böylece oyun oynarken tüylerini tanıdığın gibi türlerini de tanıyacaksın.";
+        setInfoExpanded(!infoMobileMq.matches);
+        syncInfoPanelMode();
+
+        createCards();
+        renderBoard();
+
+        // pop-up'ı board içine taşı (board merkezine hizalansın)
+        boardEl.appendChild(highlightEl);
+      }
+
+      function onCardClick(e) {
+        const cardEl = e.currentTarget;
+        const index = Number(cardEl.dataset.index);
+
+        if (lockBoard) return;
+        if (
+          cardEl.classList.contains("flipped") ||
+          cardEl.classList.contains("matched")
+        )
+          return;
+
+        cardEl.classList.add("flipped");
+        flippedIndices.push(index);
+
+        if (flippedIndices.length === 2) {
+          moves++;
+          movesEl.textContent = moves;
+          checkMatch();
+        }
+      }
+
+      function onCardHover(e) {
+        if (!gameOver) return;
+        const cardEl = e.currentTarget;
+        if (!cardEl.classList.contains("matched")) return;
+        const index = Number(cardEl.dataset.index);
+        const bird = birds[cards[index].birdIndex];
+        showBirdInfo(bird);
+      }
+
+      function checkMatch() {
+        const [i1, i2] = flippedIndices;
+        const card1 = cards[i1],
+          card2 = cards[i2];
+        const el1 = boardEl.querySelector(`.card[data-index="${i1}"]`);
+        const el2 = boardEl.querySelector(`.card[data-index="${i2}"]`);
+
+        if (card1.birdId === card2.birdId && card1.type !== card2.type) {
+          const bird = birds[card1.birdIndex];
+          const color = bird.color || "#4caf50";
+
+          el1.classList.add("matched");
+          el2.classList.add("matched");
+          el1.disabled = true;
+          el2.disabled = true;
+
+          const soft = hexToRgba(color, 0.45);
+
+          el1.style.setProperty("--match-color", soft);
+          el2.style.setProperty("--match-color", soft);
+
+          matches++;
+          matchesEl.textContent = matches;
+
+          showBirdInfo(bird);
+          showMatchHighlight(bird);
+
+          flippedIndices = [];
+
+          if (matches === birds.length) endGame();
+        } else {
+          lockBoard = true;
+          setTimeout(() => {
+            el1.classList.remove("flipped");
+            el2.classList.remove("flipped");
+            flippedIndices = [];
+            lockBoard = false;
+          }, 900);
+        }
+      }
+
+      function hexToRgba(hex, a = 1) {
+        const h = hex.replace("#", "").trim();
+        const full =
+          h.length === 3
+            ? h
+                .split("")
+                .map((c) => c + c)
+                .join("")
+            : h;
+        const r = parseInt(full.slice(0, 2), 16);
+        const g = parseInt(full.slice(2, 4), 16);
+        const b = parseInt(full.slice(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${a})`;
+      }
+
+      function showBirdInfo(bird) {
+        if (infoMobileMq.matches && !infoExpanded) {
+          setInfoExpanded(true);
+        }
+        infoNameEl.textContent = bird.englishName
+          ? `${bird.name} / ${bird.englishName}`
+          : bird.name;
+        infoLatinEl.textContent = bird.latinName || "";
+        infoTextEl.textContent =
+          bird.info || "Bu tür hakkında henüz not eklenmedi.";
+      }
+
+      function showMatchHighlight(bird) {
+        highlightImgEl.src = bird.image;
+        highlightImgEl.alt = bird.name;
+        highlightNameEl.textContent = bird.name;
+        highlightLatinEl.textContent = bird.latinName || "";
+        highlightDescEl.textContent = bird.info || "";
+
+        highlightEl.classList.add("show");
+        clearTimeout(highlightTimeout);
+        highlightTimeout = setTimeout(() => {
+          highlightEl.classList.remove("show");
+        }, 1300);
+      }
+
+      function endGame() {
+        gameOver = true;
+        endMessageEl.style.display = "block";
+        endMessageEl.textContent = `Tebrikler! Tüm kuşları ${moves} hamlede eşleştirdiniz.`;
+      }
+
+      document
+        .getElementById("restart-btn")
+        .addEventListener("click", resetGame);
+      infoToggleBtn.addEventListener("click", () => {
+        setInfoExpanded(!infoExpanded);
+      });
+      infoMobileMq.addEventListener("change", syncInfoPanelMode);
+      syncInfoPanelMode();
+      resetGame();
+    </script>
+  </body>
+</html>
+
+

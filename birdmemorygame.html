@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bird Memory Game 🐦</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #e0f7fa, #e8f5e9 40%, #f5f5f5 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 16px;
+      color: #2b3a3a;
+    }
+
+    .game-wrapper {
+      max-width: 1100px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+      padding: 20px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 span {
+      font-size: 1.6rem;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #607d8b;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      font-size: 0.9rem;
+      color: #37474f;
+    }
+
+    .stat-chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e3f2fd;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stat-label {
+      opacity: 0.8;
+    }
+
+    .stat-value {
+      font-weight: 600;
+    }
+
+    button#restart-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #4caf50;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(76, 175, 80, 0.35);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s ease;
+      white-space: nowrap;
+    }
+
+    button#restart-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(76, 175, 80, 0.4);
+      background: #43a047;
+    }
+
+    button#restart-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(260px, 0.9fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 12px;
+      align-items: stretch;
+      justify-items: stretch;
+    }
+
+    .card {
+      position: relative;
+      border: none;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      perspective: 800px;
+      height: 140px;
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        height: 120px;
+      }
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      transform-style: preserve-3d;
+      transition: transform 0.35s ease;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+      background: #fff;
+    }
+
+    .card-front,
+    .card-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-front {
+      background: linear-gradient(135deg, #80cbc4, #4db6ac);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: 0.03em;
+    }
+
+    .card-front::before {
+      content: "🐦";
+      font-size: 1.5rem;
+      margin-right: 6px;
+      opacity: 0.9;
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+      background: #ffffff;
+      padding: 8px;
+    }
+
+    .card.flipped .card-inner,
+    .card.matched .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card.matched .card-inner {
+      box-shadow: 0 0 0 2px #4caf50, 0 6px 16px rgba(76, 175, 80, 0.4);
+    }
+
+    .card:disabled {
+      cursor: default;
+    }
+
+    .card-image-wrapper {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    .card-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6px;
+      gap: 4px;
+    }
+
+    .card-label-main {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #263238;
+    }
+
+    .card-label-latin {
+      font-size: 0.75rem;
+      color: #78909c;
+      font-style: italic;
+    }
+
+    .info-panel {
+      background: #f1f8e9;
+      border-radius: 16px;
+      padding: 14px 14px 16px;
+      border: 1px solid #dceec5;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .info-panel h2 {
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #33691e;
+    }
+
+    .info-panel h2 span.icon {
+      font-size: 1.2rem;
+    }
+
+    .info-panel .info-name {
+      font-weight: 700;
+    }
+
+    .info-panel .info-latin {
+      font-size: 0.8rem;
+      color: #827717;
+      font-style: italic;
+    }
+
+    .info-panel p {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: #455a64;
+    }
+
+    .info-panel .hint {
+      font-size: 0.78rem;
+      color: #9e9d24;
+      margin-top: 4px;
+    }
+
+    .end-message {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-wrapper">
+    <header>
+      <div class="title-block">
+        <h1><span>🐦</span> Bird Memory Game</h1>
+        <div class="subtitle">
+          Kuş görselleri ile kuş isimlerini eşleştir, hem hafızanı hem kuş bilgin
+          gelişsin.
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat-chip">
+          <span class="stat-label">Hamle:</span>
+          <span class="stat-value" id="moves-count">0</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-label">Eşleşen tür:</span>
+          <span class="stat-value" id="matches-count">0</span>
+        </div>
+        <button id="restart-btn" type="button">Yeniden başlat</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="game-board" id="game-board">
+        <!-- Kartlar JS ile eklenecek -->
+      </section>
+
+      <aside class="info-panel" id="info-panel">
+        <h2><span class="icon">📚</span> Kuş Bilgi Kartı</h2>
+        <div>
+          <span class="info-name">Bir eşleşme yap ve bu bölümü dolduralım.</span>
+          <div class="info-latin"></div>
+        </div>
+        <p>
+          Her doğru eşleşmede, o kuş türü hakkında küçük bir not göreceksin.
+          Böylece oyun oynarken tüylerini tanıdığın gibi türlerini de tanıyacaksın.
+        </p>
+        <div class="hint">
+          İpucu: Kartlardan biri her zaman görsel, diğeri ise isim kartıdır.
+        </div>
+        <div class="end-message" id="end-message" style="display: none;"></div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    // 🐦 1) BURAYI KENDİ KUŞ TÜRLERİNE GÖRE DÜZENLE
+    // image yolları, index.html dosyanla aynı klasördeki "images" klasörüne göre yazılıyor.
+    const birds = [
+      {
+        id: "yalicapkini",
+        name: "Bayağı Yalıçapkını",
+        latinName: "Alcedo atthis",
+        image: "images/bayağı yalıçapkını_common kingfisher.jpg",
+        info: "Boyları 16 cm kadardır. Kanat açıklıkları yaklaşık 25 cm'dir. Ağırlıkları ise 34 - 46 gr arasında değişir."
+      },
+      {
+        id: "saksağan",
+        name: "Saksağan",
+        latinName: "Pica pica",
+        image: "images/saksagan.jpg",
+        info: "Siyah-beyaz tüyleri ve uzun kuyruğuyla kolayca tanınır. Zeki ve meraklı bir kargagil türüdür."
+      },
+      {
+        id: "ispinoz",
+        name: "İspinoz",
+        latinName: "Fringilla coelebs",
+        image: "images/ispinoz.jpg",
+        info: "Ormanlık alanlarda ve parklarda sık görülen, renkli ve canlı ötüşlü bir türdür."
+      },
+      {
+        id: "yesilisik",
+        name: "Yeşil İspinoz",
+        latinName: "Chloris chloris",
+        image: "images/yesil-ispinoz.jpg",
+        info: "Zeytinimsi yeşil rengi ve kanatlarındaki sarı bantlarla tanınır; bahçelerde sıkça görülür."
+      }
+      // Daha fazla kuş eklemek istersen buraya aynı formatta obje ekle :)
+    ];
+
+    // 🧠 2) OYUN DURUMU
+    let cards = [];
+    let flippedIndices = [];
+    let lockBoard = false;
+    let moves = 0;
+    let matches = 0;
+
+    const boardEl = document.getElementById("game-board");
+    const movesEl = document.getElementById("moves-count");
+    const matchesEl = document.getElementById("matches-count");
+    const infoPanelEl = document.getElementById("info-panel");
+    const infoNameEl = infoPanelEl.querySelector(".info-name");
+    const infoLatinEl = infoPanelEl.querySelector(".info-latin");
+    const infoTextEl = infoPanelEl.querySelector("p");
+    const endMessageEl = document.getElementById("end-message");
+
+    // Basit karıştırma fonksiyonu (Fisher–Yates)
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function createCards() {
+      cards = [];
+
+      // Her kuş için 2 kart: biri görsel, biri isim
+      birds.forEach((bird, birdIndex) => {
+        cards.push({
+          cardId: `${bird.id}-img`,
+          birdId: bird.id,
+          birdIndex,
+          type: "image"
+        });
+
+        cards.push({
+          cardId: `${bird.id}-name`,
+          birdId: bird.id,
+          birdIndex,
+          type: "name"
+        });
+      });
+
+      shuffle(cards);
+    }
+
+    function renderBoard() {
+      boardEl.innerHTML = "";
+
+      cards.forEach((card, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "card";
+        button.dataset.index = index;
+
+        const inner = document.createElement("div");
+        inner.className = "card-inner";
+
+        const front = document.createElement("div");
+        front.className = "card-front";
+        front.textContent = "KART";
+
+        const back = document.createElement("div");
+        back.className = "card-back";
+
+        const bird = birds[card.birdIndex];
+
+        if (card.type === "image") {
+          const imgWrapper = document.createElement("div");
+          imgWrapper.className = "card-image-wrapper";
+          const img = document.createElement("img");
+          img.src = bird.image;
+          img.alt = bird.name;
+          imgWrapper.appendChild(img);
+          back.appendChild(imgWrapper);
+        } else {
+          const label = document.createElement("div");
+          label.className = "card-label";
+          const main = document.createElement("div");
+          main.className = "card-label-main";
+          main.textContent = bird.name;
+          label.appendChild(main);
+
+          if (bird.latinName) {
+            const latin = document.createElement("div");
+            latin.className = "card-label-latin";
+            latin.textContent = bird.latinName;
+            label.appendChild(latin);
+          }
+
+          back.appendChild(label);
+        }
+
+        inner.appendChild(front);
+        inner.appendChild(back);
+        button.appendChild(inner);
+        button.addEventListener("click", onCardClick);
+        boardEl.appendChild(button);
+      });
+    }
+
+    function resetGame() {
+      moves = 0;
+      matches = 0;
+      flippedIndices = [];
+      lockBoard = false;
+
+      movesEl.textContent = moves;
+      matchesEl.textContent = matches;
+      endMessageEl.style.display = "none";
+      endMessageEl.textContent = "";
+
+      // Bilgi panelini başlangıca döndür
+      infoNameEl.textContent = "Bir eşleşme yap ve bu bölümü dolduralım.";
+      infoLatinEl.textContent = "";
+      infoTextEl.textContent =
+        "Her doğru eşleşmede, o kuş türü hakkında küçük bir not göreceksin. Böylece oyun oynarken tüylerini tanıdığın gibi türlerini de tanıyacaksın.";
+
+      createCards();
+      renderBoard();
+    }
+
+    function onCardClick(e) {
+      const cardEl = e.currentTarget;
+      const index = Number(cardEl.dataset.index);
+
+      if (lockBoard) return;
+      if (cardEl.classList.contains("flipped") || cardEl.classList.contains("matched")) return;
+
+      cardEl.classList.add("flipped");
+      flippedIndices.push(index);
+
+      if (flippedIndices.length === 2) {
+        moves++;
+        movesEl.textContent = moves;
+        checkMatch();
+      }
+    }
+
+    function checkMatch() {
+      const [i1, i2] = flippedIndices;
+      const card1 = cards[i1];
+      const card2 = cards[i2];
+
+      const cardEl1 = boardEl.querySelector(`.card[data-index="${i1}"]`);
+      const cardEl2 = boardEl.querySelector(`.card[data-index="${i2}"]`);
+
+      if (card1.birdId === card2.birdId && card1.type !== card2.type) {
+        // EŞLEŞME ✅
+        cardEl1.classList.add("matched");
+        cardEl2.classList.add("matched");
+        cardEl1.disabled = true;
+        cardEl2.disabled = true;
+
+        matches++;
+        matchesEl.textContent = matches;
+
+        const bird = birds[card1.birdIndex];
+        showBirdInfo(bird);
+
+        flippedIndices = [];
+
+        if (matches === birds.length) {
+          endGame();
+        }
+      } else {
+        // Eşleşmedi ❌
+        lockBoard = true;
+        setTimeout(() => {
+          cardEl1.classList.remove("flipped");
+          cardEl2.classList.remove("flipped");
+          flippedIndices = [];
+          lockBoard = false;
+        }, 900);
+      }
+    }
+
+    function showBirdInfo(bird) {
+      infoNameEl.textContent = bird.name;
+      infoLatinEl.textContent = bird.latinName || "";
+      infoTextEl.textContent = bird.info || "Bu tür hakkında henüz not eklenmedi.";
+    }
+
+    function endGame() {
+      endMessageEl.style.display = "block";
+      endMessageEl.textContent = `Tebrikler! Tüm kuşları ${moves} hamlede eşleştirdin.`;
+    }
+
+    document.getElementById("restart-btn").addEventListener("click", resetGame);
+
+    // Sayfa yüklenince oyunu başlat
+    resetGame();
+  </script>
+</body>
+</html>

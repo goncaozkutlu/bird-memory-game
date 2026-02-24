@@ -21,8 +21,7 @@
             Bird Memory Game
           </h1>
           <div class="subtitle">
-            Kuş görselleri ile kuş isimlerini eşleştir, hem hafızan hem kuş
-            bilgin gelişsin.
+            Kuşları tanıyor musun? Hafızanı test et ve eşleştir!
           </div>
         </div>
         <div class="stats">
@@ -69,7 +68,12 @@
             <div class="hint">
               İpucu: Kartlardan biri her zaman görsel, diğeri ise isim kartıdır.
             </div>
-            <div class="end-message" id="end-message" style="display: none"></div>
+            <figure class="info-visual is-empty" id="info-visual">
+              <img id="info-bird-image" src="" alt="" />
+              <figcaption class="info-credit" id="info-photo-credit">
+                Fotoğraf: Kaynak bilgisi yakında eklenecek.
+              </figcaption>
+            </figure>
           </div>
         </aside>
       </main>
@@ -87,10 +91,41 @@
           </div>
         </div>
       </div>
+
+      <div class="end-overlay" id="end-overlay" aria-hidden="true">
+        <div
+          class="end-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="end-title"
+        >
+          <button
+            type="button"
+            class="end-close"
+            id="end-close-btn"
+            aria-label="Kapat"
+          >
+            ×
+          </button>
+          <h3 id="end-title"><span aria-hidden="true">🎉</span> Tebrikler</h3>
+          <p class="end-result" id="end-result"></p>
+          <div class="end-actions">
+            <button type="button" class="end-restart-btn" id="end-restart-btn">
+              <span class="end-btn-icon" aria-hidden="true">
+                <img src="./assets/refresh-cw-alt-svgrepo-com.svg" alt="" />
+              </span>
+              Yeniden başlat
+            </button>
+            <button type="button" class="end-observe-btn" id="end-observe-btn">
+              <span class="end-btn-icon" aria-hidden="true">
+                <img src="./assets/binocular-svgrepo-com.svg" alt="" />
+              </span>
+              Kuşları gözlemle
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
     <script src="./scripts/main.js"></script>
   </body>
 </html>
-
-
-

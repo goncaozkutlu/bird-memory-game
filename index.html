@@ -10,13 +10,13 @@
     />
     <link rel="stylesheet" href="./styles/main.css" />
   </head>
-  <body>
+  <body class="theme-2">
     <div class="game-wrapper">
       <header>
         <div class="title-block">
           <h1>
             <span class="brand-mark" aria-hidden="true">
-              <img src="./assets/bird-logo.svg" alt="" />
+              <img src="./assets/header-logo.png" alt="" />
             </span>
             Bird Memory Game
           </h1>
@@ -33,6 +33,17 @@
             <span class="stat-label">Eşleşme:</span
             ><span class="stat-value" id="matches-count">0</span>
           </div>
+          <button
+            id="sound-toggle"
+            type="button"
+            aria-pressed="true"
+            aria-label="Ses: Açık"
+          >
+            <span class="sound-toggle-label">Ses</span>
+            <span class="sound-toggle-track" aria-hidden="true">
+              <span class="sound-toggle-thumb"></span>
+            </span>
+          </button>
           <button id="restart-btn" type="button">Yeniden başlat</button>
         </div>
       </header>
@@ -42,38 +53,68 @@
 
         <aside class="info-panel" id="info-panel">
           <div class="info-header">
-            <h2><span class="icon">📚</span> Kuş Bilgi Kartı</h2>
-            <button
-              type="button"
-              class="info-toggle"
-              id="info-toggle"
-              aria-expanded="true"
-              aria-controls="info-content"
-            >
-              Detayı göster
-            </button>
-          </div>
-          <div class="info-content" id="info-content">
-            <div>
-              <span class="info-name"
+            <div class="info-title-wrap">
+              <span class="info-name" id="info-name"
                 >Bir eşleşme yap ve bu bölümü dolduralım.</span
               >
-              <div class="info-latin"></div>
+              <div class="info-english" id="info-english"></div>
+              <div class="info-latin" id="info-latin"></div>
             </div>
-            <p>
+            <div class="info-actions">
+              <button
+                type="button"
+                class="replay-audio-btn"
+                id="replay-audio-btn"
+                aria-label="Kuş sesini tekrar çal"
+                title="Kuş sesini tekrar çal"
+                disabled
+              >
+                🔊
+              </button>
+              <button
+                type="button"
+                class="info-toggle"
+                id="info-toggle"
+                aria-expanded="true"
+                aria-controls="info-content"
+              >
+                Detayı göster
+              </button>
+            </div>
+          </div>
+          <div class="info-content" id="info-content">
+            <figure class="info-visual is-empty" id="info-visual">
+              <img id="info-bird-image" src="" alt="" />
+            </figure>
+            <p id="info-description">
               Her doğru eşleşmede, o kuş türü hakkında küçük bir not göreceksin.
               Böylece oyun oynarken tüylerini tanıdığın gibi türlerini de
               tanıyacaksın.
             </p>
-            <div class="hint">
-              İpucu: Kartlardan biri her zaman görsel, diğeri ise isim kartıdır.
+            <div class="info-links">
+              <span class="info-links-title">Daha fazla bilgi için</span>
+              <div class="info-link-buttons">
+                <a
+                  id="info-ebird-link"
+                  class="info-link-btn"
+                  href="https://ebird.org/home"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >eBird</a
+                >
+                <a
+                  id="info-trakus-link"
+                  class="info-link-btn"
+                  href="https://www.trakus.org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Trakus</a
+                >
+              </div>
             </div>
-            <figure class="info-visual is-empty" id="info-visual">
-              <img id="info-bird-image" src="" alt="" />
-              <figcaption class="info-credit" id="info-photo-credit">
-                Fotoğraf: Kaynak bilgisi yakında eklenecek.
-              </figcaption>
-            </figure>
+            <p class="info-credits" id="info-credits">
+              Krediler: Fotoğraf bilgisi eklenecek. Ses bilgisi eklenecek.
+            </p>
           </div>
         </aside>
       </main>
@@ -81,6 +122,14 @@
       <!-- POP-UP (JS ile .game-board içine taşınıyor) -->
       <div class="match-highlight" id="match-highlight">
         <div class="match-inner">
+          <button
+            type="button"
+            class="match-close"
+            id="match-close-btn"
+            aria-label="Eşleşme bilgisini kapat"
+          >
+            ×
+          </button>
           <div class="match-image-wrapper">
             <img id="match-image" src="" alt="" />
           </div>

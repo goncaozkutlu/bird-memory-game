@@ -8,6 +8,7 @@ const birds = [
     image: "images/calikusu.jpg",
     info: "Avrupa'nın en küçük kuşlarından biri; enerjik hareketleri ve ince sesiyle bilinir.",
     color: "#F8EE7E",
+    audio: "assets/audio/calikusu.mp3",
   },
   {
     id: "mavi-bastankara",
@@ -17,6 +18,7 @@ const birds = [
     image: "images/mavi-bastankara.jpg",
     info: "Mavi ve sarı renkleriyle çok çekici, hareketli ve meraklı bir baştankara türü.",
     color: "#4D7EBA",
+    audio: "assets/audio/mavi-bastankara.mp3",
   },
   {
     id: "uzunkuyruklu-bastankara",
@@ -26,6 +28,7 @@ const birds = [
     image: "images/uzunkuyruklu-bastankara.jpg",
     info: "Minik gövdesine göre uzun kuyruğuyla dikkat çeken, toplu halde dolaşmayı seven bir tür.",
     color: "#805A4E",
+    audio: "assets/audio/uzunkuyruklu-bastankara.mp3",
   },
   {
     id: "buyuk-bastankara",
@@ -35,6 +38,7 @@ const birds = [
     image: "images/buyuk-bastankara.jpg",
     info: "Siyah başı ve sarı gövdesiyle sık görülen, güçlü ötüşlü bir baştankara.",
     color: "#C1B76F",
+    audio: "assets/audio/buyuk-bastankara.mp3",
   },
   {
     id: "civgin",
@@ -44,6 +48,7 @@ const birds = [
     image: "images/civgin.jpg",
     info: "Yapraklar arasında sürekli hareket eden, ince ve tekrarlı ötüşüyle tanınan küçük bir ötücü.",
     color: "#A39767",
+    audio: "assets/audio/civgin.mp3",
   },
   {
     id: "kizilgerdan",
@@ -53,6 +58,7 @@ const birds = [
     image: "images/kizilgerdan.jpg",
     info: "Kırmızı göğsüyle tanınan, özellikle kış aylarında bahçelerde sık görülen sevimli bir tür.",
     color: "#E68B35",
+    audio: "assets/audio/kizilgerdan.mp3",
   },
 ];
 
@@ -63,21 +69,29 @@ let lockBoard = false;
 let moves = 0;
 let matches = 0;
 let gameOver = false;
+const SOUND_PREF_KEY = "bird-memory-sound-enabled";
+let activeBirdAudio = null;
 
 const boardEl = document.getElementById("game-board");
 const movesEl = document.getElementById("moves-count");
 const matchesEl = document.getElementById("matches-count");
+const soundToggleBtn = document.getElementById("sound-toggle");
 const infoPanelEl = document.getElementById("info-panel");
-const infoNameEl = infoPanelEl.querySelector(".info-name");
-const infoLatinEl = infoPanelEl.querySelector(".info-latin");
-const infoTextEl = infoPanelEl.querySelector("p");
+const infoNameEl = document.getElementById("info-name");
+const infoEnglishEl = document.getElementById("info-english");
+const infoLatinEl = document.getElementById("info-latin");
+const infoTextEl = document.getElementById("info-description");
 const infoVisualEl = document.getElementById("info-visual");
 const infoImageEl = document.getElementById("info-bird-image");
-const infoCreditEl = document.getElementById("info-photo-credit");
+const infoCreditsEl = document.getElementById("info-credits");
+const infoEbirdLinkEl = document.getElementById("info-ebird-link");
+const infoTrakusLinkEl = document.getElementById("info-trakus-link");
+const replayAudioBtn = document.getElementById("replay-audio-btn");
 const infoToggleBtn = document.getElementById("info-toggle");
 const infoMobileMq = window.matchMedia("(max-width: 768px)");
 let infoExpanded = true;
 let infoPanelUpdateTimeout = null;
+let currentInfoBird = null;
 const endOverlayEl = document.getElementById("end-overlay");
 const endResultEl = document.getElementById("end-result");
 const endRestartBtn = document.getElementById("end-restart-btn");
@@ -89,7 +103,89 @@ const highlightImgEl = document.getElementById("match-image");
 const highlightNameEl = document.getElementById("match-name");
 const highlightLatinEl = document.getElementById("match-latin");
 const highlightDescEl = document.getElementById("match-description");
+const matchCloseBtn = document.getElementById("match-close-btn");
 let highlightTimeout = null;
+let isSoundEnabled = getInitialSoundPreference();
+let endOverlayTimeout = null;
+const MATCH_HIGHLIGHT_DURATION_MS = 1700;
+const MATCH_HIGHLIGHT_AUDIO_FALLBACK_MS = 2400;
+const MATCH_HIGHLIGHT_MIN_MS = 1600;
+const MATCH_HIGHLIGHT_MAX_MS = 3000;
+const END_OVERLAY_DELAY_AFTER_HIGHLIGHT_MS = 250;
+
+function getInitialSoundPreference() {
+  try {
+    const saved = localStorage.getItem(SOUND_PREF_KEY);
+    if (saved === null) return true;
+    return saved === "1";
+  } catch {
+    return true;
+  }
+}
+
+function updateSoundToggleUI() {
+  soundToggleBtn.setAttribute("aria-pressed", String(isSoundEnabled));
+  soundToggleBtn.setAttribute(
+    "aria-label",
+    isSoundEnabled ? "Ses: Açık" : "Ses: Kapalı"
+  );
+}
+
+function playBirdSound(bird, options = {}) {
+  const { force = false, onEnded = null } = options;
+  if ((!isSoundEnabled && !force) || !bird?.audio) return;
+
+  if (activeBirdAudio) {
+    activeBirdAudio.pause();
+    activeBirdAudio.currentTime = 0;
+  }
+
+  const audio = new Audio(bird.audio);
+  audio.volume = 0.85;
+  audio.addEventListener(
+    "ended",
+    () => {
+      if (activeBirdAudio === audio) {
+        activeBirdAudio = null;
+        if (typeof onEnded === "function") onEnded();
+      }
+    },
+    { once: true }
+  );
+  activeBirdAudio = audio;
+  audio.play().catch(() => {
+    // Autoplay/policy or file errors are safely ignored.
+  });
+}
+
+function stopActiveBirdAudio() {
+  if (!activeBirdAudio) return;
+  activeBirdAudio.pause();
+  activeBirdAudio.currentTime = 0;
+  activeBirdAudio = null;
+}
+
+function hideMatchHighlight(options = {}) {
+  const { stopAudio = true } = options;
+  if (stopAudio) stopActiveBirdAudio();
+  highlightEl.classList.remove("show");
+  clearTimeout(highlightTimeout);
+  highlightTimeout = null;
+}
+
+function getBirdInfoLinks(bird) {
+  const query = encodeURIComponent(bird?.latinName || bird?.name || "");
+  return {
+    ebird: bird?.ebirdUrl || `https://ebird.org/search?query=${query}`,
+    trakus: bird?.trakusUrl || "https://www.trakus.org",
+  };
+}
+
+function getBirdCreditsText(bird) {
+  const photoPart = bird?.photoCredit || "Fotoğraf: kaynak bilgisi eklenecek.";
+  const audioPart = bird?.audioCredit || "Ses: kaynak bilgisi eklenecek.";
+  return `Krediler: ${photoPart} ${audioPart}`;
+}
 
 function setInfoExpanded(nextExpanded) {
   infoExpanded = nextExpanded;
@@ -213,15 +309,26 @@ function resetGame() {
   gameOver = false;
   movesEl.textContent = moves;
   matchesEl.textContent = matches;
+  stopActiveBirdAudio();
+  hideMatchHighlight();
+  clearTimeout(endOverlayTimeout);
+  endOverlayTimeout = null;
   hideEndOverlay();
   infoNameEl.textContent = "Bir eşleşme yap ve bu bölümü dolduralım.";
+  infoEnglishEl.textContent = "";
   infoLatinEl.textContent = "";
   infoTextEl.textContent =
     "Her doğru eşleşmede, o kuş türü hakkında küçük bir not göreceksin. Böylece oyun oynarken tüylerini tanıdığın gibi türlerini de tanıyacaksın.";
   infoVisualEl.classList.add("is-empty");
   infoImageEl.removeAttribute("src");
   infoImageEl.alt = "";
-  infoCreditEl.textContent = "Fotoğraf: Kaynak bilgisi yakında eklenecek.";
+  infoEbirdLinkEl.href = "https://ebird.org/home";
+  infoTrakusLinkEl.href = "https://www.trakus.org";
+  infoCreditsEl.textContent =
+    "Krediler: Fotoğraf bilgisi eklenecek. Ses bilgisi eklenecek.";
+  currentInfoBird = null;
+  replayAudioBtn.disabled = true;
+  infoPanelEl.classList.add("is-empty-state");
   infoPanelEl.classList.remove("updated");
   setInfoExpanded(!infoMobileMq.matches);
   syncInfoPanelMode();
@@ -295,11 +402,23 @@ function checkMatch() {
     matchesEl.textContent = matches;
 
     showBirdInfo(bird, { animate: true });
-    showMatchHighlight(bird);
+    playBirdSound(bird, {
+      onEnded: () => hideMatchHighlight({ stopAudio: false }),
+    });
+    const highlightDuration = showMatchHighlight(bird);
 
     flippedIndices = [];
 
-    if (matches === birds.length) endGame();
+    if (matches === birds.length) {
+      clearTimeout(endOverlayTimeout);
+      const finalMatchesSnapshot = matches;
+      endOverlayTimeout = setTimeout(() => {
+        endOverlayTimeout = null;
+        if (!gameOver && finalMatchesSnapshot === birds.length) {
+          endGame();
+        }
+      }, highlightDuration + END_OVERLAY_DELAY_AFTER_HIGHLIGHT_MS);
+    }
   } else {
     lockBoard = true;
     setTimeout(() => {
@@ -331,15 +450,19 @@ function showBirdInfo(bird, options = {}) {
   if (infoMobileMq.matches && !infoExpanded) {
     setInfoExpanded(true);
   }
-  infoNameEl.textContent = bird.englishName
-    ? `${bird.name} / ${bird.englishName}`
-    : bird.name;
+  infoNameEl.textContent = bird.name;
+  infoEnglishEl.textContent = bird.englishName || "";
   infoLatinEl.textContent = bird.latinName || "";
   infoTextEl.textContent = bird.info || "Bu tür hakkında henüz not eklenmedi.";
   infoImageEl.src = bird.image;
   infoImageEl.alt = `${bird.name} görseli`;
-  infoCreditEl.textContent =
-    bird.photoCredit || "Fotoğraf: Kaynak bilgisi yakında eklenecek.";
+  const links = getBirdInfoLinks(bird);
+  infoEbirdLinkEl.href = links.ebird;
+  infoTrakusLinkEl.href = links.trakus;
+  infoCreditsEl.textContent = getBirdCreditsText(bird);
+  currentInfoBird = bird;
+  replayAudioBtn.disabled = !bird.audio;
+  infoPanelEl.classList.remove("is-empty-state");
   infoVisualEl.classList.remove("is-empty");
 
   if (animate) {
@@ -363,11 +486,31 @@ function showMatchHighlight(bird) {
   highlightLatinEl.textContent = bird.latinName || "";
   highlightDescEl.textContent = bird.info || "";
 
+  let durationMs = MATCH_HIGHLIGHT_DURATION_MS;
+  const hasPlayableAudio =
+    isSoundEnabled &&
+    activeBirdAudio &&
+    Number.isFinite(activeBirdAudio.duration) &&
+    activeBirdAudio.duration > 0;
+  const hasAudioButMetadataMissing =
+    isSoundEnabled && !!bird?.audio && !hasPlayableAudio;
+
+  if (hasPlayableAudio) {
+    durationMs = Math.round(activeBirdAudio.duration * 1000 + 180);
+  } else if (hasAudioButMetadataMissing) {
+    durationMs = MATCH_HIGHLIGHT_AUDIO_FALLBACK_MS;
+  }
+  durationMs = Math.max(
+    MATCH_HIGHLIGHT_MIN_MS,
+    Math.min(MATCH_HIGHLIGHT_MAX_MS, durationMs)
+  );
+
   highlightEl.classList.add("show");
   clearTimeout(highlightTimeout);
   highlightTimeout = setTimeout(() => {
-    highlightEl.classList.remove("show");
-  }, 1300);
+    hideMatchHighlight();
+  }, durationMs);
+  return durationMs;
 }
 
 function endGame() {
@@ -387,16 +530,39 @@ function hideEndOverlay() {
 }
 
 document.getElementById("restart-btn").addEventListener("click", resetGame);
+soundToggleBtn.addEventListener("click", () => {
+  isSoundEnabled = !isSoundEnabled;
+  updateSoundToggleUI();
+  try {
+    localStorage.setItem(SOUND_PREF_KEY, isSoundEnabled ? "1" : "0");
+  } catch {
+    // Ignore storage restrictions.
+  }
+});
 endRestartBtn.addEventListener("click", resetGame);
 endObserveBtn.addEventListener("click", hideEndOverlay);
 endCloseBtn.addEventListener("click", hideEndOverlay);
 endOverlayEl.addEventListener("click", (e) => {
   if (e.target === endOverlayEl) hideEndOverlay();
 });
+highlightEl.addEventListener("click", (e) => {
+  if (e.target === highlightEl) hideMatchHighlight();
+});
+matchCloseBtn.addEventListener("click", hideMatchHighlight);
+window.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (highlightEl.classList.contains("show")) hideMatchHighlight();
+  if (endOverlayEl.classList.contains("show")) hideEndOverlay();
+});
+replayAudioBtn.addEventListener("click", () => {
+  if (!currentInfoBird?.audio) return;
+  playBirdSound(currentInfoBird, { force: true });
+});
 infoToggleBtn.addEventListener("click", () => {
   setInfoExpanded(!infoExpanded);
 });
 infoMobileMq.addEventListener("change", syncInfoPanelMode);
 window.addEventListener("resize", syncInfoPanelHeight);
+updateSoundToggleUI();
 syncInfoPanelMode();
 resetGame();

@@ -1,0 +1,158 @@
+﻿<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Bird Memory Game 🐦</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/main.css" />
+  </head>
+  <body class="theme-2">
+    <div class="game-wrapper">
+      <header>
+        <div class="title-block">
+          <h1>
+            <span class="brand-mark" aria-hidden="true">
+              <img src="./assets/header-logo.png" alt="" />
+            </span>
+            Bird Memory Game
+          </h1>
+          <div class="subtitle">
+            Kuşları tanıyor musun? Hafızanı test et ve eşleştir!
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat-chip">
+            <span class="stat-label">Hamle:</span
+            ><span class="stat-value" id="moves-count">0</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Eşleşme:</span
+            ><span class="stat-value" id="matches-count">0</span>
+          </div>
+          <button
+            id="sound-toggle"
+            type="button"
+            aria-pressed="true"
+            aria-label="Ses: Açık"
+          >
+            <span class="sound-toggle-label">Ses</span>
+            <span class="sound-toggle-track" aria-hidden="true">
+              <span class="sound-toggle-thumb"></span>
+            </span>
+          </button>
+          <button id="restart-btn" type="button">Yeniden başlat</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="game-board" id="game-board"></section>
+
+        <aside class="info-panel" id="info-panel">
+          <div class="info-header">
+            <div class="info-title-wrap">
+              <span class="info-name" id="info-name"
+                >Bir eşleşme yap ve bu bölümü dolduralım.</span
+              >
+              <div class="info-english" id="info-english"></div>
+              <div class="info-latin" id="info-latin"></div>
+            </div>
+            <div class="info-actions">
+              <button
+                type="button"
+                class="replay-audio-btn"
+                id="replay-audio-btn"
+                aria-label="Kuş sesini tekrar çal"
+                title="Kuş sesini tekrar çal"
+                disabled
+              >
+                🔊
+              </button>
+              <button
+                type="button"
+                class="info-toggle"
+                id="info-toggle"
+                aria-expanded="true"
+                aria-controls="info-content"
+              >
+                Detayı göster
+              </button>
+            </div>
+          </div>
+          <div class="info-content" id="info-content">
+            <figure class="info-visual is-empty" id="info-visual">
+              <img id="info-bird-image" src="" alt="" />
+            </figure>
+            <p id="info-description">
+              Her doğru eşleşmede, o kuş türü hakkında küçük bir not göreceksin.
+              Böylece oyun oynarken tüylerini tanıdığın gibi türlerini de
+              tanıyacaksın.
+            </p>
+            <div class="info-links">
+              <span class="info-links-title">Daha fazla bilgi için</span>
+              <div class="info-link-buttons">
+                <a
+                  id="info-ebird-link"
+                  class="info-link-btn"
+                  href="https://ebird.org/home"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >eBird</a
+                >
+                <a
+                  id="info-trakus-link"
+                  class="info-link-btn"
+                  href="https://www.trakus.org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Trakus</a
+                >
+              </div>
+            </div>
+            <p class="info-credits" id="info-credits">
+              Krediler: Fotoğraf bilgisi eklenecek. Ses bilgisi eklenecek.
+            </p>
+          </div>
+        </aside>
+      </main>
+
+      <div class="end-overlay" id="end-overlay" aria-hidden="true">
+        <div
+          class="end-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="end-title"
+        >
+          <button
+            type="button"
+            class="end-close"
+            id="end-close-btn"
+            aria-label="Kapat"
+          >
+            ×
+          </button>
+          <h3 id="end-title"><span aria-hidden="true">🎉</span> Tebrikler</h3>
+          <p class="end-result" id="end-result"></p>
+          <div class="end-actions">
+            <button type="button" class="end-restart-btn" id="end-restart-btn">
+              <span class="end-btn-icon" aria-hidden="true">
+                <img src="./assets/refresh-cw-alt-svgrepo-com.svg" alt="" />
+              </span>
+              Yeniden başlat
+            </button>
+            <button type="button" class="end-observe-btn" id="end-observe-btn">
+              <span class="end-btn-icon" aria-hidden="true">
+                <img src="./assets/binocular-svgrepo-com.svg" alt="" />
+              </span>
+              Kuşları gözlemle
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="./scripts/main.js"></script>
+  </body>
+</html>

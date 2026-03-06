@@ -9,13 +9,6 @@ const birds = [
     info: "Avrupa'nın en küçük kuşlarından biri; enerjik hareketleri ve ince sesiyle bilinir.",
     color: "#F8EE7E",
     audio: "assets/audio/calikusu.mp3",
-    photoCredit: "Matej Bizjak",
-    photoSource: "Pexels",
-    photoSourceUrl:
-      "https://www.pexels.com/photo/captivating-goldcrest-on-rustic-tree-bark-30747632/",
-    ebirdUrl: "https://ebird.org/species/goldcr1",
-    trakusUrl:
-      "https://www.trakus.org/kods_bird/uye/?fsx=2fsdl17@d&tur=%C7al%FDku%FEu",
   },
   {
     id: "mavi-bastankara",
@@ -26,13 +19,6 @@ const birds = [
     info: "Mavi ve sarı renkleriyle çok çekici, hareketli ve meraklı bir baştankara türü.",
     color: "#4D7EBA",
     audio: "assets/audio/mavi-bastankara.mp3",
-    photoCredit: "Doncoombez",
-    photoSource: "Unsplash",
-    photoSourceUrl:
-      "https://unsplash.com/photos/a-small-blue-and-yellow-bird-perched-on-a-branch-MbrQXGQ1mfM",
-    ebirdUrl: "https://ebird.org/species/blutit",
-    trakusUrl:
-      "https://www.trakus.org/kods_bird/uye/?fsx=2fsdl17@d&tur=Mavi%20ba%FEtankara",
   },
   {
     id: "uzunkuyruklu-bastankara",
@@ -43,13 +29,6 @@ const birds = [
     info: "Minik gövdesine göre uzun kuyruğuyla dikkat çeken, toplu halde dolaşmayı seven bir tür.",
     color: "#805A4E",
     audio: "assets/audio/uzunkuyruklu-bastankara.mp3",
-    photoCredit: "Bob Brewer",
-    photoSource: "Unsplash",
-    photoSourceUrl:
-      "https://unsplash.com/photos/brown-and-white-bird-on-tree-branch-jRkE-J2hZhI",
-    ebirdUrl: "https://ebird.org/species/lottit1?siteLanguage=tr",
-    trakusUrl:
-      "https://www.trakus.org/kods_bird/uye/?fsx=2fsdl17@d&tur=Uzunkuyruklu%20ba%FEtankara",
   },
   {
     id: "buyuk-bastankara",
@@ -60,13 +39,6 @@ const birds = [
     info: "Siyah başı ve sarı gövdesiyle sık görülen, güçlü ötüşlü bir baştankara.",
     color: "#C1B76F",
     audio: "assets/audio/buyuk-bastankara.mp3",
-    photoCredit: "Petr Ganaj",
-    photoSource: "Pexels",
-    photoSourceUrl:
-      "https://www.pexels.com/photo/great-tit-parus-major-bird-on-branch-19632855/",
-    ebirdUrl: "https://ebird.org/species/gretit3?siteLanguage=tr",
-    trakusUrl:
-      "https://www.trakus.org/kods_bird/uye/?fsx=2fsdl17@d&tur=B%FCy%FCk%20ba%FEtankara",
   },
   {
     id: "civgin",
@@ -77,13 +49,6 @@ const birds = [
     info: "Yapraklar arasında sürekli hareket eden, ince ve tekrarlı ötüşüyle tanınan küçük bir ötücü.",
     color: "#A39767",
     audio: "assets/audio/civgin.mp3",
-    photoCredit: "Petr Ganaj",
-    photoSource: "Pexels",
-    photoSourceUrl:
-      "https://www.pexels.com/photo/common-chiffchaff-perched-on-a-branch-18930335/",
-    ebirdUrl: "https://ebird.org/species/comchi1",
-    trakusUrl:
-      "https://www.trakus.org/kods_bird/uye/?fsx=2fsdl17@d&tur=%C7%FDvg%FDn",
   },
   {
     id: "kizilgerdan",
@@ -94,13 +59,6 @@ const birds = [
     info: "Kırmızı göğsüyle tanınan, özellikle kış aylarında bahçelerde sık görülen sevimli bir tür.",
     color: "#E68B35",
     audio: "assets/audio/kizilgerdan.mp3",
-    photoCredit: "Amee Fairbank-Brown",
-    photoSource: "Unsplash",
-    photoSourceUrl:
-      "https://unsplash.com/photos/brown-and-white-bird-on-brown-tree-branch-DRDkhR5ebAk",
-    ebirdUrl: "https://ebird.org/species/eurrob1",
-    trakusUrl:
-      "https://www.trakus.org/kods_bird/uye/?fsx=2fsdl17@d&tur=K%FDz%FDlgerdan",
   },
 ];
 
@@ -112,8 +70,6 @@ let moves = 0;
 let matches = 0;
 let gameOver = false;
 const SOUND_PREF_KEY = "bird-memory-sound-enabled";
-const ONBOARDING_SEEN_KEY = "bird-memory-onboarding-seen-session-v1";
-const BEST_MOVES_KEY = "bird-memory-best-moves-v1";
 let activeBirdAudio = null;
 
 const boardEl = document.getElementById("game-board");
@@ -141,17 +97,13 @@ const endResultEl = document.getElementById("end-result");
 const endRestartBtn = document.getElementById("end-restart-btn");
 const endObserveBtn = document.getElementById("end-observe-btn");
 const endCloseBtn = document.getElementById("end-close-btn");
-const onboardingOverlayEl = document.getElementById("onboarding-overlay");
-const onboardingStartBtn = document.getElementById("onboarding-start-btn");
-const onboardingCloseBtn = document.getElementById("onboarding-close-btn");
 const prefersReducedMotionMq = window.matchMedia(
-  "(prefers-reduced-motion: reduce)",
+  "(prefers-reduced-motion: reduce)"
 );
 
 let isSoundEnabled = getInitialSoundPreference();
 let endOverlayTimeout = null;
 const END_OVERLAY_DELAY_AFTER_MATCH_MS = 250;
-const ENABLE_COLLECT_FLY_ANIMATION = false;
 
 function getInitialSoundPreference() {
   try {
@@ -163,49 +115,12 @@ function getInitialSoundPreference() {
   }
 }
 
-function hasSeenOnboarding() {
-  try {
-    return sessionStorage.getItem(ONBOARDING_SEEN_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function markOnboardingSeen() {
-  try {
-    sessionStorage.setItem(ONBOARDING_SEEN_KEY, "1");
-  } catch {
-    // Ignore storage restrictions.
-  }
-}
-
-function getBestMoves() {
-  try {
-    const saved = localStorage.getItem(BEST_MOVES_KEY);
-    if (saved === null) return null;
-    const parsed = Number(saved);
-    if (!Number.isInteger(parsed) || parsed <= 0) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function setBestMoves(nextBestMoves) {
-  try {
-    localStorage.setItem(BEST_MOVES_KEY, String(nextBestMoves));
-  } catch {
-    // Ignore storage restrictions.
-  }
-}
-
 function updateSoundToggleUI() {
-  const soundLabel = isSoundEnabled
-    ? "Eşleşme seslerini kapat"
-    : "Eşleşme seslerini aç";
   soundToggleBtn.setAttribute("aria-pressed", String(isSoundEnabled));
-  soundToggleBtn.setAttribute("aria-label", soundLabel);
-  soundToggleBtn.setAttribute("data-hover-label", soundLabel);
+  soundToggleBtn.setAttribute(
+    "aria-label",
+    isSoundEnabled ? "Ses: Açık" : "Ses: Kapalı"
+  );
 }
 
 function playBirdSound(bird, options = {}) {
@@ -227,7 +142,7 @@ function playBirdSound(bird, options = {}) {
         if (typeof onEnded === "function") onEnded();
       }
     },
-    { once: true },
+    { once: true }
   );
   activeBirdAudio = audio;
   audio.play().catch(() => {
@@ -258,30 +173,10 @@ function getBirdInfoLinks(bird) {
   };
 }
 
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function getBirdCreditsHtml(bird) {
-  if (!bird?.photoCredit || !bird?.photoSource) {
-    return "© Fotoğraf: kaynak bilgisi eklenecek.";
-  }
-
-  const credit = `© Fotoğraf: ${escapeHtml(bird.photoCredit)} / `;
-  const source = escapeHtml(bird.photoSource);
-  const sourceUrl = bird?.photoSourceUrl;
-  if (!sourceUrl) {
-    return `${credit}${source}`;
-  }
-
-  return `${credit}<a href="${escapeHtml(
-    sourceUrl,
-  )}" target="_blank" rel="noopener noreferrer">${source}</a>`;
+function getBirdCreditsText(bird) {
+  const photoPart = bird?.photoCredit || "Fotoğraf: kaynak bilgisi eklenecek.";
+  const audioPart = bird?.audioCredit || "Ses: kaynak bilgisi eklenecek.";
+  return `Krediler: ${photoPart} ${audioPart}`;
 }
 
 function setInfoExpanded(nextExpanded) {
@@ -420,7 +315,8 @@ function resetGame() {
   infoImageEl.alt = "";
   infoEbirdLinkEl.href = "https://ebird.org/home";
   infoTrakusLinkEl.href = "https://www.trakus.org";
-  infoCreditsEl.textContent = "© Fotoğraf: kaynak bilgisi eklenecek.";
+  infoCreditsEl.textContent =
+    "Krediler: Fotoğraf bilgisi eklenecek. Ses bilgisi eklenecek.";
   currentInfoBird = null;
   replayAudioBtn.disabled = true;
   infoPanelEl.classList.add("is-empty-state");
@@ -556,7 +452,7 @@ function showBirdInfo(bird, options = {}) {
   const links = getBirdInfoLinks(bird);
   infoEbirdLinkEl.href = links.ebird;
   infoTrakusLinkEl.href = links.trakus;
-  infoCreditsEl.innerHTML = getBirdCreditsHtml(bird);
+  infoCreditsEl.textContent = getBirdCreditsText(bird);
   currentInfoBird = bird;
   replayAudioBtn.disabled = !bird.audio;
   infoPanelEl.classList.remove("is-empty-state");
@@ -577,12 +473,7 @@ function showBirdInfo(bird, options = {}) {
 }
 
 function playMatchCollectAnimation(bird) {
-  if (
-    !ENABLE_COLLECT_FLY_ANIMATION ||
-    prefersReducedMotionMq.matches ||
-    !bird?.image
-  )
-    return;
+  if (prefersReducedMotionMq.matches || !bird?.image) return;
 
   const boardRect = boardEl.getBoundingClientRect();
   const targetEl = infoVisualEl.classList.contains("is-empty")
@@ -604,7 +495,7 @@ function playMatchCollectAnimation(bird) {
   flyEl.style.setProperty("--collect-dy", `${toY - fromY}px`);
   flyEl.style.setProperty(
     "--collect-accent",
-    hexToRgba(bird.color || "#f4e9c6", 0.82),
+    hexToRgba(bird.color || "#f4e9c6", 0.82)
   );
 
   const img = document.createElement("img");
@@ -620,39 +511,11 @@ function playMatchCollectAnimation(bird) {
 
 function endGame() {
   gameOver = true;
-  const previousBestMoves = getBestMoves();
-  const isNewRecord = previousBestMoves === null || moves < previousBestMoves;
-  const currentMovesHtml = `<strong>${moves}</strong>`;
-
-  if (isNewRecord) {
-    setBestMoves(moves);
-    if (previousBestMoves === null) {
-      showEndOverlay(
-        `Tebrikler! İlk gözlemini ${currentMovesHtml} hamlede tamamladın. Bakalım bir sonraki sefer bu rekoru geliştirebilecek misin?`,
-      );
-      return;
-    }
-
-    showEndOverlay(
-      `🏆 Yeni Kişisel Rekor!<br>Müthiş bir gözlem yeteneği! ${currentMovesHtml} hamle ile yeni rekorunu kırdın. (Önceki rekorun: <strong>${previousBestMoves}</strong>)`,
-    );
-    return;
-  }
-
-  if (moves === previousBestMoves) {
-    showEndOverlay(
-      `Harika bir gözlem! Bu turu tam ${currentMovesHtml} hamlede tamamladın. Kişisel rekorunu koruyorsun! 🏆 Bir kez daha deneyip çıtayı yükseltmeye ne dersin?`,
-    );
-    return;
-  }
-
-  showEndOverlay(
-    `Harika! Bu gözlemi ${currentMovesHtml} hamlede tamamladın. Kişisel rekorun <strong>${previousBestMoves}</strong> hamle. Bir kez daha denemeye ne dersin?`,
-  );
+  showEndOverlay(`Tüm kuşları ${moves} hamlede eşleştirdiniz.`);
 }
 
 function showEndOverlay(message) {
-  endResultEl.innerHTML = message;
+  endResultEl.textContent = message;
   endOverlayEl.classList.add("show");
   endOverlayEl.setAttribute("aria-hidden", "false");
 }
@@ -660,17 +523,6 @@ function showEndOverlay(message) {
 function hideEndOverlay() {
   endOverlayEl.classList.remove("show");
   endOverlayEl.setAttribute("aria-hidden", "true");
-}
-
-function showOnboarding() {
-  onboardingOverlayEl.classList.add("show");
-  onboardingOverlayEl.setAttribute("aria-hidden", "false");
-}
-
-function hideOnboarding() {
-  onboardingOverlayEl.classList.remove("show");
-  onboardingOverlayEl.setAttribute("aria-hidden", "true");
-  markOnboardingSeen();
 }
 
 document.getElementById("restart-btn").addEventListener("click", resetGame);
@@ -686,20 +538,11 @@ soundToggleBtn.addEventListener("click", () => {
 endRestartBtn.addEventListener("click", resetGame);
 endObserveBtn.addEventListener("click", hideEndOverlay);
 endCloseBtn.addEventListener("click", hideEndOverlay);
-onboardingStartBtn.addEventListener("click", hideOnboarding);
-onboardingCloseBtn.addEventListener("click", hideOnboarding);
 endOverlayEl.addEventListener("click", (e) => {
   if (e.target === endOverlayEl) hideEndOverlay();
 });
-onboardingOverlayEl.addEventListener("click", (e) => {
-  if (e.target === onboardingOverlayEl) hideOnboarding();
-});
 window.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
-  if (onboardingOverlayEl.classList.contains("show")) {
-    hideOnboarding();
-    return;
-  }
   if (endOverlayEl.classList.contains("show")) hideEndOverlay();
 });
 replayAudioBtn.addEventListener("click", () => {
@@ -714,4 +557,3 @@ window.addEventListener("resize", syncInfoPanelHeight);
 updateSoundToggleUI();
 syncInfoPanelMode();
 resetGame();
-if (!hasSeenOnboarding()) showOnboarding();

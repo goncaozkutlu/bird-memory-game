@@ -2165,16 +2165,12 @@ main {
   }
 
   .card-front::before {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.18) 0%,
-      rgba(255, 251, 245, 0.08) 100%
-    );
+    background: transparent;
   }
 
   .card-back {
     padding: 6px;
-    background: #f6f6f2;
+    background: #f4f7f4;
   }
 
   .card-image-wrapper {

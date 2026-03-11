@@ -107,7 +107,7 @@ const birds = [
     latinName: "Erithacus rubecula",
     image: "images/kizilgerdan.jpg",
     infoTr:
-      "Kırmızı göğsüyle tanınan, özellikle kış aylarında bahçelerde sık görülen sevimli bir tür.",
+      "Turuncu/Kırmızı göğsüyle tanınan, özellikle kış aylarında bahçelerde sık görülen sevimli bir tür.",
     infoEn:
       "A charming species recognized by its red chest, often seen in gardens especially during winter.",
     color: "#E68B35",
@@ -245,9 +245,9 @@ const translations = {
     replayStop: "Kuş sesini durdur",
     infoToggleShow: "Detayı göster",
     infoToggleHide: "Detayı gizle",
-    infoEmptyTitle: "Bir eşleşme yap ve bu bölümü dolduralım.",
+    infoEmptyTitle: "Bir eşleşme yap, bu bölümü dolduralım!",
     infoEmptyText:
-      "Her doğru eşleşmede, o kuş türü hakkında küçük bir not göreceksin. Böylece oyun oynarken tüylerini tanıdığın gibi türlerini de tanıyacaksın.",
+      'Her doğru eşleşmede, o kuş türü hakkında küçük bir not göreceksin.<br /><br /><span class="info-empty-note"><strong>Hatırlatma:</strong> Kartlardan birinde kuşun fotoğrafı, diğerinde ismi olacak.</span>',
     infoMissingText: "Bu tür hakkında henüz not eklenmedi.",
     infoImageAlt: "{name} görseli",
     infoLinksTitle: "Daha fazla bilgi için:",
@@ -257,15 +257,17 @@ const translations = {
     photoPrefix: "© Fotoğraf: ",
     onboardingClose: "Tanıtım penceresini kapat",
     onboardingTitle: "Kuşları keşfetmeye hazır mısın?",
-    onboardingLead: "Fotoğraf ve isim kartlarını eşleştir, kuşları yakından tanı!",
+    onboardingLead:
+      "Fotoğraf ve isim kartlarını eşleştir, onları yakından tanı!",
     onboardingText:
-      "Her doğru eşleşmede kuşun sesini duyabilir, bilgilerini öğrenebilirsin.",
-    onboardingNote: "Unutma: Kartlardan biri görsel, diğeri isim olacak.",
+      "Her doğru eşleşmede o kuşun sesini duyabilir, bilgilerini görebilirsin.",
+    onboardingNote:
+      "<strong>Unutma:</strong> Kartlardan biri kuşun fotoğrafı, diğeri ismi olacak.",
     onboardingControls: "Kontroller",
     onboardingScoreTitle: "İlerleme",
     onboardingControlSound: "Kuş sesini aç / kapat",
     onboardingControlLang: "Dil değiştir",
-    onboardingControlRestart: "Oyunu yeniden başlat",
+    onboardingControlRestart: "Yeniden Başlat",
     onboardingScoreMoves: "Hamle sayısı",
     onboardingScoreMatches: "Eşleşme sayısı",
     onboardingStart: "Kuş gözlemine başla",
@@ -297,9 +299,9 @@ const translations = {
     replayStop: "Stop bird call",
     infoToggleShow: "Show details",
     infoToggleHide: "Hide details",
-    infoEmptyTitle: "Make a match to fill this section.",
+    infoEmptyTitle: "Make a match and let's fill this section!",
     infoEmptyText:
-      "With each correct match, you will see a short note about that bird species. You can learn species while playing.",
+      'With each correct match, you will see a short note about that bird species.<br /><br /><span class="info-empty-note"><strong>Reminder:</strong> One card will show the bird photo, and the other will show its name.</span>',
     infoMissingText: "No note has been added for this species yet.",
     infoImageAlt: "{name} image",
     infoLinksTitle: "Learn more",
@@ -311,7 +313,8 @@ const translations = {
     onboardingLead: "Match photo and name cards to get to know birds better!",
     onboardingText:
       "With each correct match, you can hear the bird call and learn quick facts.",
-    onboardingNote: "Remember: one card is visual, the other is the name.",
+    onboardingNote:
+      "<strong>Remember:</strong> one card is visual, the other is the name.",
     onboardingControls: "Controls",
     onboardingScoreTitle: "Progress",
     onboardingControlSound: "Toggle bird sound",
@@ -438,7 +441,7 @@ function setInfoEmptyState() {
   infoNameEl.textContent = t("infoEmptyTitle");
   infoEnglishEl.textContent = "";
   infoLatinEl.textContent = "";
-  infoTextEl.textContent = t("infoEmptyText");
+  infoTextEl.innerHTML = t("infoEmptyText");
   infoVisualEl.classList.add("is-empty");
   infoImageEl.removeAttribute("src");
   infoImageEl.alt = "";
@@ -474,7 +477,7 @@ function applyLanguage() {
   onboardingStartBtn.textContent = t("onboardingStart");
   onboardingLeadEl.textContent = t("onboardingLead");
   onboardingTextEl.textContent = t("onboardingText");
-  onboardingNoteEl.innerHTML = `<span class="onboarding-note-icon" aria-hidden="true">✦</span><strong>${t("onboardingNote")}</strong>`;
+  onboardingNoteEl.innerHTML = `<span class="onboarding-note-icon" aria-hidden="true">✦</span>${t("onboardingNote")}`;
   onboardingControlsTitleEl.textContent = t("onboardingControls");
   onboardingScoreTitleEl.textContent = t("onboardingScoreTitle");
   onboardingControlSoundEl.textContent = t("onboardingControlSound");
@@ -504,9 +507,9 @@ function updateSoundToggleUI() {
 function isCurrentInfoBirdAudioPlaying() {
   return Boolean(
     activeBirdAudio &&
-      currentInfoBird &&
-      activeBirdId &&
-      currentInfoBird.id === activeBirdId,
+    currentInfoBird &&
+    activeBirdId &&
+    currentInfoBird.id === activeBirdId,
   );
 }
 
@@ -631,7 +634,10 @@ function updateInfoToggleVisibility() {
 function syncInfoPanelMode() {
   if (infoMobileMq.matches) {
     updateInfoToggleVisibility();
-    infoPanelEl.classList.toggle("collapsed", !infoExpanded);
+    infoPanelEl.classList.toggle(
+      "collapsed",
+      !infoExpanded && Boolean(currentInfoBird),
+    );
     infoPanelEl.style.removeProperty("--board-height");
   } else {
     updateInfoToggleVisibility();
@@ -725,7 +731,6 @@ function renderBoard() {
     inner.appendChild(back);
     button.appendChild(inner);
     button.addEventListener("click", onCardClick);
-    button.addEventListener("mouseenter", onCardHover);
     boardEl.appendChild(button);
   });
 }
@@ -751,6 +756,7 @@ function resetGame() {
   flippedIndices = [];
   lockBoard = false;
   gameOver = false;
+  boardEl.classList.remove("is-observe-mode");
   movesEl.textContent = moves;
   matchesEl.textContent = matches;
   stopMatchFeedback();
@@ -759,7 +765,7 @@ function resetGame() {
   hideEndOverlay();
   hasUserChosenInfoExpanded = false;
   setInfoEmptyState();
-  setInfoExpanded(!infoMobileMq.matches);
+  setInfoExpanded(true);
   syncInfoPanelMode();
 
   createCards();
@@ -770,6 +776,12 @@ function resetGame() {
 function onCardClick(e) {
   const cardEl = e.currentTarget;
   const index = Number(cardEl.dataset.index);
+
+  if (gameOver && cardEl.classList.contains("matched")) {
+    const bird = birds[cards[index].birdIndex];
+    showBirdInfo(bird);
+    return;
+  }
 
   if (lockBoard) return;
   if (
@@ -789,15 +801,6 @@ function onCardClick(e) {
     movesEl.textContent = moves;
     checkMatch();
   }
-}
-
-function onCardHover(e) {
-  if (!gameOver) return;
-  const cardEl = e.currentTarget;
-  if (!cardEl.classList.contains("matched")) return;
-  const index = Number(cardEl.dataset.index);
-  const bird = birds[cards[index].birdIndex];
-  showBirdInfo(bird);
 }
 
 function checkMatch() {
@@ -958,6 +961,10 @@ function playMatchCollectAnimation(bird) {
 
 function endGame() {
   gameOver = true;
+  boardEl.classList.add("is-observe-mode");
+  boardEl
+    .querySelectorAll(".card.matched")
+    .forEach((cardEl) => (cardEl.disabled = false));
   const previousBestMoves = getBestMoves();
   const isNewRecord = previousBestMoves === null || moves < previousBestMoves;
   const currentMovesHtml = `<strong>${moves}</strong>`;

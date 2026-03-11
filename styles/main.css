@@ -414,6 +414,7 @@ h1 {
   font-weight: 700;
   letter-spacing: 0.01em;
   line-height: 1;
+  opacity: var(--ui-icon-opacity);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -687,7 +688,7 @@ h1 {
   transform: translate(-50%, 0);
 }
 #restart-btn:active {
-  color: var(--green-primary-active);
+  color: var(--icon-default);
 }
 
 main {
@@ -728,6 +729,16 @@ main {
 @media (hover: hover) and (pointer: fine) {
   .card:not(.matched):not(.flipped):hover {
     transform: translateY(-4px);
+  }
+
+  .game-board.is-observe-mode .card.matched:hover {
+    transform: translateY(-2px);
+  }
+
+  .game-board.is-observe-mode .card.matched:hover .card-inner {
+    box-shadow:
+      0 0 0 1.5px var(--match-color, rgba(90, 120, 104, 0.72)),
+      0 14px 22px rgba(26, 36, 31, 0.2);
   }
 }
 .card-inner {
@@ -1242,7 +1253,7 @@ main {
   font-family: var(--font-heading);
   font-weight: 800;
   font-size: 1.04rem;
-  color: var(--panel-strong);
+  color: rgba(35, 49, 43, 0.9);
   line-height: 1.16;
   margin-top: 0;
 }
@@ -1267,6 +1278,15 @@ main {
   line-height: 1.42;
   color: var(--panel-text);
   margin-top: 0;
+}
+
+#info-description .info-empty-note {
+  color: rgba(35, 49, 43, 0.78);
+}
+
+#info-description .info-empty-note strong {
+  font-weight: 700;
+  color: rgba(35, 49, 43, 0.82);
 }
 
 .info-visual {
@@ -1444,7 +1464,7 @@ main {
 .onboarding-modal h3 {
   font-family: var(--font-heading);
   font-size: 1.16rem;
-  color: #1f3a30;
+  color: rgba(31, 58, 48, 0.9);
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -1485,11 +1505,15 @@ main {
 }
 
 .onboarding-note {
-  font-weight: 700;
+  font-weight: 400;
   display: inline-flex;
   align-items: center;
   gap: 7px;
   margin-bottom: 4px;
+}
+
+.onboarding-note strong {
+  font-weight: 700;
 }
 
 .onboarding-note-icon {
@@ -1611,6 +1635,11 @@ main {
   pointer-events: none;
   width: fit-content;
   min-width: 120px;
+}
+
+.onboarding-score-chip .stat-value {
+  color: rgba(35, 49, 43, 0.76);
+  font-weight: 500;
 }
 
 .onboarding-score-chip::after {
@@ -2038,13 +2067,13 @@ main {
 }
 
 .end-observe-btn .end-btn-icon img {
-  filter: grayscale(100%) brightness(0.48);
-  opacity: 0.72;
+  filter: grayscale(100%) brightness(0.66);
+  opacity: 0.62;
   transform: scale(1);
 }
 
 .end-observe-btn:hover .end-btn-icon img {
-  opacity: 0.85;
+  opacity: 0.68;
 }
 
 .end-close {

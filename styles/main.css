@@ -1122,6 +1122,11 @@ main {
   font-weight: 600;
   cursor: pointer;
 }
+
+.info-toggle[hidden] {
+  display: none !important;
+}
+
 .replay-audio-btn {
   width: 36px;
   height: 36px;
@@ -2154,23 +2159,8 @@ main {
     box-shadow: 0 3px 8px rgba(26, 36, 31, 0.12);
   }
 
-  .card-front {
-    position: relative;
-    outline: 1px solid rgba(35, 49, 43, 0.06);
-    background: linear-gradient(
-      135deg,
-      var(--card-front-1),
-      var(--card-front-2)
-    );
-  }
-
-  .card-front::before {
-    background: transparent;
-  }
-
   .card-back {
     padding: 6px;
-    background: #f4f7f4;
   }
 
   .card-image-wrapper {

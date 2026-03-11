@@ -6,7 +6,10 @@ const birds = [
     englishName: "Goldcrest",
     latinName: "Regulus regulus",
     image: "images/calikusu.jpg",
-    info: "Avrupa'nın en küçük kuşlarından biri; enerjik hareketleri ve ince sesiyle bilinir.",
+    infoTr:
+      "Avrupa'nın en küçük kuşlarından biri; enerjik hareketleri ve ince sesiyle bilinir.",
+    infoEn:
+      "One of the smallest birds in Europe, known for its energetic movements and thin call.",
     color: "#F8EE7E",
     audio: "assets/audio/calikusu.mp3",
     photoCredit: "Matej Bizjak",
@@ -23,7 +26,10 @@ const birds = [
     englishName: "Eurasian Blue Tit",
     latinName: "Cyanistes caeruleus",
     image: "images/mavi-bastankara.jpg",
-    info: "Mavi ve sarı renkleriyle çok çekici, hareketli ve meraklı bir baştankara türü.",
+    infoTr:
+      "Mavi ve sarı renkleriyle çok çekici, hareketli ve meraklı bir baştankara türü.",
+    infoEn:
+      "A very attractive, active, and curious tit species with blue and yellow colors.",
     color: "#4D7EBA",
     audio: "assets/audio/mavi-bastankara.mp3",
     photoCredit: "Doncoombez",
@@ -40,7 +46,10 @@ const birds = [
     englishName: "Long-tailed Tit",
     latinName: "Aegithalos caudatus",
     image: "images/uzunkuyruklu-bastankara.jpg",
-    info: "Minik gövdesine göre uzun kuyruğuyla dikkat çeken, toplu halde dolaşmayı seven bir tür.",
+    infoTr:
+      "Minik gövdesine göre uzun kuyruğuyla dikkat çeken, toplu halde dolaşmayı seven bir tür.",
+    infoEn:
+      "A species that stands out with its long tail compared to its tiny body and likes moving in groups.",
     color: "#805A4E",
     audio: "assets/audio/uzunkuyruklu-bastankara.mp3",
     photoCredit: "Bob Brewer",
@@ -57,7 +66,10 @@ const birds = [
     englishName: "Great Tit",
     latinName: "Parus major",
     image: "images/buyuk-bastankara.jpg",
-    info: "Siyah başı ve sarı gövdesiyle sık görülen, güçlü ötüşlü bir baştankara.",
+    infoTr:
+      "Siyah başı ve sarı gövdesiyle sık görülen, güçlü ötüşlü bir baştankara.",
+    infoEn:
+      "A commonly seen tit with a black head, yellow body, and a strong song.",
     color: "#C1B76F",
     audio: "assets/audio/buyuk-bastankara.mp3",
     photoCredit: "Petr Ganaj",
@@ -74,7 +86,10 @@ const birds = [
     englishName: "Common Chiffchaff",
     latinName: "Phylloscopus collybita",
     image: "images/civgin.jpg",
-    info: "Yapraklar arasında sürekli hareket eden, ince ve tekrarlı ötüşüyle tanınan küçük bir ötücü.",
+    infoTr:
+      "Yapraklar arasında sürekli hareket eden, ince ve tekrarlı ötüşüyle tanınan küçük bir ötücü.",
+    infoEn:
+      "A small songbird known for constant movement among leaves and a thin, repetitive song.",
     color: "#A39767",
     audio: "assets/audio/civgin.mp3",
     photoCredit: "Petr Ganaj",
@@ -91,7 +106,10 @@ const birds = [
     englishName: "European Robin",
     latinName: "Erithacus rubecula",
     image: "images/kizilgerdan.jpg",
-    info: "Kırmızı göğsüyle tanınan, özellikle kış aylarında bahçelerde sık görülen sevimli bir tür.",
+    infoTr:
+      "Kırmızı göğsüyle tanınan, özellikle kış aylarında bahçelerde sık görülen sevimli bir tür.",
+    infoEn:
+      "A charming species recognized by its red chest, often seen in gardens especially during winter.",
     color: "#E68B35",
     audio: "assets/audio/kizilgerdan.mp3",
     photoCredit: "Amee Fairbank-Brown",
@@ -114,12 +132,23 @@ let gameOver = false;
 const SOUND_PREF_KEY = "bird-memory-sound-enabled";
 const ONBOARDING_SEEN_KEY = "bird-memory-onboarding-seen-session-v1";
 const BEST_MOVES_KEY = "bird-memory-best-moves-v1";
+const LANG_PREF_KEY = "bird-memory-language-v1";
+// "experimental" to try the new modal look, "classic" for previous styling.
+const ONBOARDING_VARIANT = "classic";
 let activeBirdAudio = null;
+let activeBirdId = null;
 
 const boardEl = document.getElementById("game-board");
 const movesEl = document.getElementById("moves-count");
 const matchesEl = document.getElementById("matches-count");
+const movesChipEl = document.getElementById("moves-chip");
+const matchesChipEl = document.getElementById("matches-chip");
+const langToggleBtn = document.getElementById("lang-toggle");
 const soundToggleBtn = document.getElementById("sound-toggle");
+const restartBtn = document.getElementById("restart-btn");
+const helpBtn = document.getElementById("help-btn");
+const gameTitleEl = document.getElementById("game-title");
+const gameSubtitleEl = document.getElementById("game-subtitle");
 const infoPanelEl = document.getElementById("info-panel");
 const infoNameEl = document.getElementById("info-name");
 const infoEnglishEl = document.getElementById("info-english");
@@ -128,6 +157,8 @@ const infoTextEl = document.getElementById("info-description");
 const infoVisualEl = document.getElementById("info-visual");
 const infoImageEl = document.getElementById("info-bird-image");
 const infoCreditsEl = document.getElementById("info-credits");
+const infoLinksTitleEl = document.getElementById("info-links-title");
+const infoAudioCreditEl = document.getElementById("info-audio-credit");
 const infoEbirdLinkEl = document.getElementById("info-ebird-link");
 const infoTrakusLinkEl = document.getElementById("info-trakus-link");
 const replayAudioBtn = document.getElementById("replay-audio-btn");
@@ -142,16 +173,166 @@ const endRestartBtn = document.getElementById("end-restart-btn");
 const endObserveBtn = document.getElementById("end-observe-btn");
 const endCloseBtn = document.getElementById("end-close-btn");
 const onboardingOverlayEl = document.getElementById("onboarding-overlay");
+const onboardingModalEl = document.querySelector(
+  "#onboarding-overlay .onboarding-modal",
+);
 const onboardingStartBtn = document.getElementById("onboarding-start-btn");
 const onboardingCloseBtn = document.getElementById("onboarding-close-btn");
+const onboardingTitleTextEl = document.getElementById("onboarding-title-text");
+const onboardingLeadEl = document.getElementById("onboarding-lead");
+const onboardingTextEl = document.getElementById("onboarding-text");
+const onboardingNoteEl = document.getElementById("onboarding-note");
+const onboardingControlsTitleEl = document.getElementById(
+  "onboarding-controls-title",
+);
+const onboardingScoreTitleEl = document.getElementById(
+  "onboarding-score-title",
+);
+const onboardingControlSoundEl = document.getElementById(
+  "onboarding-control-sound",
+);
+const onboardingControlLangEl = document.getElementById(
+  "onboarding-control-lang",
+);
+const onboardingControlRestartEl = document.getElementById(
+  "onboarding-control-restart",
+);
+const onboardingScoreMovesEl = document.getElementById(
+  "onboarding-score-moves",
+);
+const onboardingScoreMatchesEl = document.getElementById(
+  "onboarding-score-matches",
+);
+const endTitleTextEl = document.getElementById("end-title-text");
+const endRestartLabelEl = document.getElementById("end-restart-label");
+const endObserveLabelEl = document.getElementById("end-observe-label");
 const prefersReducedMotionMq = window.matchMedia(
   "(prefers-reduced-motion: reduce)",
 );
 
 let isSoundEnabled = getInitialSoundPreference();
+let currentLang = getInitialLanguage();
 let endOverlayTimeout = null;
 const END_OVERLAY_DELAY_AFTER_MATCH_MS = 250;
 const ENABLE_COLLECT_FLY_ANIMATION = false;
+
+if (onboardingOverlayEl && onboardingModalEl) {
+  const useExperimentalOnboarding = ONBOARDING_VARIANT === "experimental";
+  onboardingOverlayEl.classList.toggle(
+    "onboarding-variant-experimental",
+    useExperimentalOnboarding,
+  );
+  onboardingModalEl.classList.toggle(
+    "is-experimental",
+    useExperimentalOnboarding,
+  );
+}
+
+const translations = {
+  tr: {
+    pageTitle: "Bird Memory Game 🐦",
+    gameTitle: "Bird Memory Game",
+    gameSubtitle: "Çevrendeki kuşları keşfet, hafızanı test et!",
+    statMoves: "Hamle",
+    statMatches: "Eşleşme",
+    langSwitchTo: "İngilizceye geç",
+    help: "Yardım",
+    restart: "Yeniden başlat",
+    soundOn: "Eşleşme seslerini kapat",
+    soundOff: "Eşleşme seslerini aç",
+    replay: "Kuş sesini dinle",
+    replayStop: "Kuş sesini durdur",
+    infoToggleShow: "Detayı göster",
+    infoToggleHide: "Detayı gizle",
+    infoEmptyTitle: "Bir eşleşme yap ve bu bölümü dolduralım.",
+    infoEmptyText:
+      "Her doğru eşleşmede, o kuş türü hakkında küçük bir not göreceksin. Böylece oyun oynarken tüylerini tanıdığın gibi türlerini de tanıyacaksın.",
+    infoMissingText: "Bu tür hakkında henüz not eklenmedi.",
+    infoImageAlt: "{name} görseli",
+    infoLinksTitle: "Daha fazla bilgi için:",
+    infoAudioCredit:
+      "Bütün kuş sesleri için trakus.org kütüphanesi kullanılmıştır.",
+    photoFallback: "© Fotoğraf: kaynak bilgisi eklenecek.",
+    photoPrefix: "© Fotoğraf: ",
+    onboardingClose: "Tanıtım penceresini kapat",
+    onboardingTitle: "Kuşları keşfetmeye hazır mısın?",
+    onboardingLead: "Fotoğraf ve isim kartlarını eşleştir, kuşları yakından tanı!",
+    onboardingText:
+      "Her doğru eşleşmede kuşun sesini duyabilir, bilgilerini öğrenebilirsin.",
+    onboardingNote: "Unutma: Kartlardan biri görsel, diğeri isim olacak.",
+    onboardingControls: "Kontroller",
+    onboardingScoreTitle: "İlerleme",
+    onboardingControlSound: "Kuş sesini aç / kapat",
+    onboardingControlLang: "Dil değiştir",
+    onboardingControlRestart: "Oyunu yeniden başlat",
+    onboardingScoreMoves: "Hamle sayısı",
+    onboardingScoreMatches: "Eşleşme sayısı",
+    onboardingStart: "Kuş gözlemine başla",
+    endClose: "Kapat",
+    endTitle: "Tebrikler!",
+    endRestart: "Yeniden başlat",
+    endObserve: "Kuşları incele",
+    endFirst:
+      "Tebrikler! İlk gözlemini {moves} hamlede tamamladın. Bakalım bir sonraki sefer bu rekoru geliştirebilecek misin?",
+    endNewRecord:
+      "🏆 Yeni Kişisel Rekor!<br>Müthiş bir gözlem yeteneği! {moves} hamle ile yeni rekorunu kırdın. (Önceki rekorun: <strong>{best}</strong>)",
+    endEqualRecord:
+      "Harika bir gözlem! Bu turu tam {moves} hamlede tamamladın. Kişisel rekorunu koruyorsun! 🏆 Bir kez daha deneyip çıtayı yükseltmeye ne dersin?",
+    endTryAgain:
+      "Harika! Bu gözlemi {moves} hamlede tamamladın. Kişisel rekorun <strong>{best}</strong>. Bir kez daha denemeye ne dersin?",
+  },
+  en: {
+    pageTitle: "Bird Memory Game 🐦",
+    gameTitle: "Bird Memory Game",
+    gameSubtitle: "Discover birds around you and test your memory!",
+    statMoves: "Moves",
+    statMatches: "Matches",
+    langSwitchTo: "Switch to Turkish",
+    help: "Help",
+    restart: "Restart",
+    soundOn: "Turn off match sounds",
+    soundOff: "Turn on match sounds",
+    replay: "Listen to bird call",
+    replayStop: "Stop bird call",
+    infoToggleShow: "Show details",
+    infoToggleHide: "Hide details",
+    infoEmptyTitle: "Make a match to fill this section.",
+    infoEmptyText:
+      "With each correct match, you will see a short note about that bird species. You can learn species while playing.",
+    infoMissingText: "No note has been added for this species yet.",
+    infoImageAlt: "{name} image",
+    infoLinksTitle: "Learn more",
+    infoAudioCredit: "All bird sounds are sourced from the trakus.org library.",
+    photoFallback: "© Photo: source information will be added.",
+    photoPrefix: "© Photo: ",
+    onboardingClose: "Close onboarding dialog",
+    onboardingTitle: "Ready to discover birds?",
+    onboardingLead: "Match photo and name cards to get to know birds better!",
+    onboardingText:
+      "With each correct match, you can hear the bird call and learn quick facts.",
+    onboardingNote: "Remember: one card is visual, the other is the name.",
+    onboardingControls: "Controls",
+    onboardingScoreTitle: "Progress",
+    onboardingControlSound: "Toggle bird sound",
+    onboardingControlLang: "Change language",
+    onboardingControlRestart: "Restart game",
+    onboardingScoreMoves: "Move count",
+    onboardingScoreMatches: "Match count",
+    onboardingStart: "Start birdwatching",
+    endClose: "Close",
+    endTitle: "Congrats!",
+    endRestart: "Restart",
+    endObserve: "Observe birds",
+    endFirst:
+      "Great job! You completed your first observation in {moves} moves. Can you beat this record next time?",
+    endNewRecord:
+      "🏆 New Personal Record!<br>Amazing observation skills! You set a new record with {moves} moves. (Previous record: <strong>{best}</strong>)",
+    endEqualRecord:
+      "Great observation! You finished this round in exactly {moves} moves. You are holding your personal record! 🏆 Want to try once more and raise the bar?",
+    endTryAgain:
+      "Great! You completed this observation in {moves} moves. Your personal record is <strong>{best}</strong> moves. Want to try again?",
+  },
+};
 
 function getInitialSoundPreference() {
   try {
@@ -199,13 +380,141 @@ function setBestMoves(nextBestMoves) {
   }
 }
 
+function getInitialLanguage() {
+  try {
+    const saved = localStorage.getItem(LANG_PREF_KEY);
+    return saved === "en" ? "en" : "tr";
+  } catch {
+    return "tr";
+  }
+}
+
+function setLanguage(nextLang) {
+  currentLang = nextLang === "en" ? "en" : "tr";
+  try {
+    localStorage.setItem(LANG_PREF_KEY, currentLang);
+  } catch {
+    // Ignore storage restrictions.
+  }
+  applyLanguage();
+  updateBoardLanguage();
+  if (currentInfoBird) {
+    showBirdInfo(currentInfoBird);
+  } else {
+    setInfoEmptyState();
+  }
+}
+
+function t(key) {
+  return (
+    translations[currentLang]?.[key] ??
+    translations.tr[key] ??
+    `[missing:${key}]`
+  );
+}
+
+function format(template, values) {
+  return template.replace(/\{(\w+)\}/g, (_, token) => values[token] ?? "");
+}
+
+function getBirdPrimaryName(bird) {
+  if (currentLang === "en") return bird.englishName || bird.name;
+  return bird.name || bird.englishName;
+}
+
+function getBirdSecondaryName(bird) {
+  const secondary = currentLang === "en" ? bird.name : bird.englishName;
+  if (!secondary || secondary === getBirdPrimaryName(bird)) return "";
+  return secondary;
+}
+
+function getBirdInfoText(bird) {
+  if (currentLang === "en") return bird?.infoEn || bird?.infoTr || "";
+  return bird?.infoTr || bird?.infoEn || "";
+}
+
+function setInfoEmptyState() {
+  infoNameEl.textContent = t("infoEmptyTitle");
+  infoEnglishEl.textContent = "";
+  infoLatinEl.textContent = "";
+  infoTextEl.textContent = t("infoEmptyText");
+  infoVisualEl.classList.add("is-empty");
+  infoImageEl.removeAttribute("src");
+  infoImageEl.alt = "";
+  infoEbirdLinkEl.href = "https://ebird.org/home";
+  infoTrakusLinkEl.href = "https://www.trakus.org";
+  infoCreditsEl.textContent = t("photoFallback");
+  currentInfoBird = null;
+  replayAudioBtn.disabled = true;
+  updateReplayAudioButtonUI();
+  infoPanelEl.classList.add("is-empty-state");
+  infoPanelEl.classList.remove("updated");
+}
+
+function applyLanguage() {
+  document.documentElement.lang = currentLang;
+  document.title = t("pageTitle");
+  gameTitleEl.textContent = t("gameTitle");
+  gameSubtitleEl.textContent = t("gameSubtitle");
+  movesChipEl.setAttribute("data-hover-label", t("statMoves"));
+  matchesChipEl.setAttribute("data-hover-label", t("statMatches"));
+  restartBtn.setAttribute("aria-label", t("restart"));
+  restartBtn.setAttribute("data-hover-label", t("restart"));
+  helpBtn.setAttribute("aria-label", t("help"));
+  helpBtn.setAttribute("data-hover-label", t("help"));
+  langToggleBtn.textContent = currentLang.toUpperCase();
+  langToggleBtn.setAttribute("aria-label", t("langSwitchTo"));
+  langToggleBtn.setAttribute("data-hover-label", t("langSwitchTo"));
+  updateReplayAudioButtonUI();
+  infoLinksTitleEl.textContent = t("infoLinksTitle");
+  infoAudioCreditEl.textContent = t("infoAudioCredit");
+  onboardingCloseBtn.setAttribute("aria-label", t("onboardingClose"));
+  onboardingStartBtn.textContent = t("onboardingStart");
+  onboardingLeadEl.textContent = t("onboardingLead");
+  onboardingTextEl.textContent = t("onboardingText");
+  onboardingNoteEl.innerHTML = `<span class="onboarding-note-icon" aria-hidden="true">✦</span><strong>${t("onboardingNote")}</strong>`;
+  onboardingControlsTitleEl.textContent = t("onboardingControls");
+  onboardingScoreTitleEl.textContent = t("onboardingScoreTitle");
+  onboardingControlSoundEl.textContent = t("onboardingControlSound");
+  onboardingControlLangEl.textContent = t("onboardingControlLang");
+  onboardingControlRestartEl.textContent = t("onboardingControlRestart");
+  onboardingScoreMovesEl.textContent = t("onboardingScoreMoves");
+  onboardingScoreMatchesEl.textContent = t("onboardingScoreMatches");
+  endTitleTextEl.textContent = t("endTitle");
+  endRestartLabelEl.textContent = t("endRestart");
+  endObserveLabelEl.textContent = t("endObserve");
+  endCloseBtn.setAttribute("aria-label", t("endClose"));
+
+  onboardingTitleTextEl.textContent = t("onboardingTitle");
+  updateSoundToggleUI();
+  infoToggleBtn.textContent = infoExpanded
+    ? t("infoToggleHide")
+    : t("infoToggleShow");
+}
+
 function updateSoundToggleUI() {
-  const soundLabel = isSoundEnabled
-    ? "Eşleşme seslerini kapat"
-    : "Eşleşme seslerini aç";
+  const soundLabel = isSoundEnabled ? t("soundOn") : t("soundOff");
   soundToggleBtn.setAttribute("aria-pressed", String(isSoundEnabled));
   soundToggleBtn.setAttribute("aria-label", soundLabel);
   soundToggleBtn.setAttribute("data-hover-label", soundLabel);
+}
+
+function isCurrentInfoBirdAudioPlaying() {
+  return Boolean(
+    activeBirdAudio &&
+      currentInfoBird &&
+      activeBirdId &&
+      currentInfoBird.id === activeBirdId,
+  );
+}
+
+function updateReplayAudioButtonUI() {
+  const isPlaying = isCurrentInfoBirdAudioPlaying();
+  const replayLabel = isPlaying ? t("replayStop") : t("replay");
+  replayAudioBtn.dataset.audioState = isPlaying ? "playing" : "idle";
+  replayAudioBtn.setAttribute("aria-pressed", String(isPlaying));
+  replayAudioBtn.setAttribute("aria-label", replayLabel);
+  replayAudioBtn.setAttribute("data-hover-label", replayLabel);
 }
 
 function playBirdSound(bird, options = {}) {
@@ -215,6 +524,8 @@ function playBirdSound(bird, options = {}) {
   if (activeBirdAudio) {
     activeBirdAudio.pause();
     activeBirdAudio.currentTime = 0;
+    activeBirdAudio = null;
+    activeBirdId = null;
   }
 
   const audio = new Audio(bird.audio);
@@ -224,13 +535,22 @@ function playBirdSound(bird, options = {}) {
     () => {
       if (activeBirdAudio === audio) {
         activeBirdAudio = null;
+        activeBirdId = null;
+        updateReplayAudioButtonUI();
         if (typeof onEnded === "function") onEnded();
       }
     },
     { once: true },
   );
   activeBirdAudio = audio;
+  activeBirdId = bird.id || null;
+  updateReplayAudioButtonUI();
   audio.play().catch(() => {
+    if (activeBirdAudio === audio) {
+      activeBirdAudio = null;
+      activeBirdId = null;
+      updateReplayAudioButtonUI();
+    }
     // Autoplay/policy or file errors are safely ignored.
   });
 }
@@ -240,6 +560,8 @@ function stopActiveBirdAudio() {
   activeBirdAudio.pause();
   activeBirdAudio.currentTime = 0;
   activeBirdAudio = null;
+  activeBirdId = null;
+  updateReplayAudioButtonUI();
 }
 
 function stopMatchFeedback() {
@@ -269,10 +591,10 @@ function escapeHtml(value) {
 
 function getBirdCreditsHtml(bird) {
   if (!bird?.photoCredit || !bird?.photoSource) {
-    return "© Fotoğraf: kaynak bilgisi eklenecek.";
+    return t("photoFallback");
   }
 
-  const credit = `© Fotoğraf: ${escapeHtml(bird.photoCredit)} / `;
+  const credit = `${t("photoPrefix")}${escapeHtml(bird.photoCredit)} / `;
   const source = escapeHtml(bird.photoSource);
   const sourceUrl = bird?.photoSourceUrl;
   if (!sourceUrl) {
@@ -287,7 +609,9 @@ function getBirdCreditsHtml(bird) {
 function setInfoExpanded(nextExpanded) {
   infoExpanded = nextExpanded;
   infoToggleBtn.setAttribute("aria-expanded", String(infoExpanded));
-  infoToggleBtn.textContent = infoExpanded ? "Detayı gizle" : "Detayı göster";
+  infoToggleBtn.textContent = infoExpanded
+    ? t("infoToggleHide")
+    : t("infoToggleShow");
 
   if (infoMobileMq.matches) {
     infoPanelEl.classList.toggle("collapsed", !infoExpanded);
@@ -370,7 +694,7 @@ function renderBoard() {
       w.className = "card-image-wrapper";
       const img = document.createElement("img");
       img.src = bird.image;
-      img.alt = bird.name;
+      img.alt = getBirdPrimaryName(bird);
       w.appendChild(img);
       back.appendChild(w);
     } else {
@@ -378,7 +702,7 @@ function renderBoard() {
       label.className = "card-label";
       const main = document.createElement("div");
       main.className = "card-label-main";
-      main.textContent = bird.name;
+      main.textContent = getBirdPrimaryName(bird);
       label.appendChild(main);
       if (bird.latinName) {
         const latin = document.createElement("div");
@@ -398,6 +722,21 @@ function renderBoard() {
   });
 }
 
+function updateBoardLanguage() {
+  cards.forEach((card, index) => {
+    const cardEl = boardEl.querySelector(`.card[data-index="${index}"]`);
+    if (!cardEl) return;
+    const bird = birds[card.birdIndex];
+    if (card.type === "image") {
+      const imageEl = cardEl.querySelector(".card-image-wrapper img");
+      if (imageEl) imageEl.alt = getBirdPrimaryName(bird);
+      return;
+    }
+    const labelMainEl = cardEl.querySelector(".card-label-main");
+    if (labelMainEl) labelMainEl.textContent = getBirdPrimaryName(bird);
+  });
+}
+
 function resetGame() {
   moves = 0;
   matches = 0;
@@ -410,21 +749,7 @@ function resetGame() {
   clearTimeout(endOverlayTimeout);
   endOverlayTimeout = null;
   hideEndOverlay();
-  infoNameEl.textContent = "Bir eşleşme yap ve bu bölümü dolduralım.";
-  infoEnglishEl.textContent = "";
-  infoLatinEl.textContent = "";
-  infoTextEl.textContent =
-    "Her doğru eşleşmede, o kuş türü hakkında küçük bir not göreceksin. Böylece oyun oynarken tüylerini tanıdığın gibi türlerini de tanıyacaksın.";
-  infoVisualEl.classList.add("is-empty");
-  infoImageEl.removeAttribute("src");
-  infoImageEl.alt = "";
-  infoEbirdLinkEl.href = "https://ebird.org/home";
-  infoTrakusLinkEl.href = "https://www.trakus.org";
-  infoCreditsEl.textContent = "© Fotoğraf: kaynak bilgisi eklenecek.";
-  currentInfoBird = null;
-  replayAudioBtn.disabled = true;
-  infoPanelEl.classList.add("is-empty-state");
-  infoPanelEl.classList.remove("updated");
+  setInfoEmptyState();
   setInfoExpanded(!infoMobileMq.matches);
   syncInfoPanelMode();
 
@@ -547,18 +872,21 @@ function showBirdInfo(bird, options = {}) {
   if (infoMobileMq.matches && !infoExpanded) {
     setInfoExpanded(true);
   }
-  infoNameEl.textContent = bird.name;
-  infoEnglishEl.textContent = bird.englishName || "";
+  const primaryName = getBirdPrimaryName(bird);
+  const secondaryName = getBirdSecondaryName(bird);
+  infoNameEl.textContent = primaryName;
+  infoEnglishEl.textContent = secondaryName;
   infoLatinEl.textContent = bird.latinName || "";
-  infoTextEl.textContent = bird.info || "Bu tür hakkında henüz not eklenmedi.";
+  infoTextEl.textContent = getBirdInfoText(bird) || t("infoMissingText");
   infoImageEl.src = bird.image;
-  infoImageEl.alt = `${bird.name} görseli`;
+  infoImageEl.alt = format(t("infoImageAlt"), { name: primaryName });
   const links = getBirdInfoLinks(bird);
   infoEbirdLinkEl.href = links.ebird;
   infoTrakusLinkEl.href = links.trakus;
   infoCreditsEl.innerHTML = getBirdCreditsHtml(bird);
   currentInfoBird = bird;
   replayAudioBtn.disabled = !bird.audio;
+  updateReplayAudioButtonUI();
   infoPanelEl.classList.remove("is-empty-state");
   infoVisualEl.classList.remove("is-empty");
 
@@ -627,27 +955,29 @@ function endGame() {
   if (isNewRecord) {
     setBestMoves(moves);
     if (previousBestMoves === null) {
-      showEndOverlay(
-        `Tebrikler! İlk gözlemini ${currentMovesHtml} hamlede tamamladın. Bakalım bir sonraki sefer bu rekoru geliştirebilecek misin?`,
-      );
+      showEndOverlay(format(t("endFirst"), { moves: currentMovesHtml }));
       return;
     }
 
     showEndOverlay(
-      `🏆 Yeni Kişisel Rekor!<br>Müthiş bir gözlem yeteneği! ${currentMovesHtml} hamle ile yeni rekorunu kırdın. (Önceki rekorun: <strong>${previousBestMoves}</strong>)`,
+      format(t("endNewRecord"), {
+        moves: currentMovesHtml,
+        best: previousBestMoves,
+      }),
     );
     return;
   }
 
   if (moves === previousBestMoves) {
-    showEndOverlay(
-      `Harika bir gözlem! Bu turu tam ${currentMovesHtml} hamlede tamamladın. Kişisel rekorunu koruyorsun! 🏆 Bir kez daha deneyip çıtayı yükseltmeye ne dersin?`,
-    );
+    showEndOverlay(format(t("endEqualRecord"), { moves: currentMovesHtml }));
     return;
   }
 
   showEndOverlay(
-    `Harika! Bu gözlemi ${currentMovesHtml} hamlede tamamladın. Kişisel rekorun <strong>${previousBestMoves}</strong> hamle. Bir kez daha denemeye ne dersin?`,
+    format(t("endTryAgain"), {
+      moves: currentMovesHtml,
+      best: previousBestMoves,
+    }),
   );
 }
 
@@ -673,7 +1003,11 @@ function hideOnboarding() {
   markOnboardingSeen();
 }
 
-document.getElementById("restart-btn").addEventListener("click", resetGame);
+restartBtn.addEventListener("click", resetGame);
+helpBtn.addEventListener("click", showOnboarding);
+langToggleBtn.addEventListener("click", () => {
+  setLanguage(currentLang === "tr" ? "en" : "tr");
+});
 soundToggleBtn.addEventListener("click", () => {
   isSoundEnabled = !isSoundEnabled;
   updateSoundToggleUI();
@@ -704,6 +1038,10 @@ window.addEventListener("keydown", (e) => {
 });
 replayAudioBtn.addEventListener("click", () => {
   if (!currentInfoBird?.audio) return;
+  if (isCurrentInfoBirdAudioPlaying()) {
+    stopActiveBirdAudio();
+    return;
+  }
   playBirdSound(currentInfoBird, { force: true });
 });
 infoToggleBtn.addEventListener("click", () => {
@@ -711,7 +1049,7 @@ infoToggleBtn.addEventListener("click", () => {
 });
 infoMobileMq.addEventListener("change", syncInfoPanelMode);
 window.addEventListener("resize", syncInfoPanelHeight);
-updateSoundToggleUI();
+applyLanguage();
 syncInfoPanelMode();
 resetGame();
 if (!hasSeenOnboarding()) showOnboarding();

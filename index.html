@@ -2,13 +2,13 @@
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
-    <title>Bird Memory Game 🐦</title>
+    <title>Bird Memory Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Quicksand:wght@600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles/main.css?v=20260307-6" />
+    <link rel="stylesheet" href="./styles/main.css?v=20260307-11" />
   </head>
   <body class="theme-2">
     <div class="game-wrapper">
@@ -17,19 +17,19 @@
           <span class="brand-mark" aria-hidden="true">
             <img src="./assets/header-logo.png" alt="" />
           </span>
-          <h1>Bird Memory Game</h1>
-          <div class="subtitle">
+          <h1 id="game-title">Bird Memory Game</h1>
+          <div class="subtitle" id="game-subtitle">
             Çevrendeki kuşları keşfet, hafızanı test et!
           </div>
         </div>
         <div class="stats">
-          <div class="stat-chip" data-hover-label="Hamle">
+          <div class="stat-chip" id="moves-chip" data-hover-label="Hamle">
             <span class="stat-icon stat-icon-moves" aria-hidden="true">
               <img src="./assets/bird-prints-clean.svg" alt="" />
             </span>
             <span class="stat-value" id="moves-count">0</span>
           </div>
-          <div class="stat-chip" data-hover-label="Eşleşme">
+          <div class="stat-chip" id="matches-chip" data-hover-label="Eşleşme">
             <span class="stat-icon stat-icon-matches" aria-hidden="true">
               <img src="./assets/binoculars-svgrepo-com_v1.svg" alt="" />
             </span>
@@ -57,6 +57,24 @@
                 <line x1="20.8" y1="9.2" x2="15.2" y2="14.8" />
               </svg>
             </span>
+          </button>
+          <button
+            class="icon-btn"
+            id="lang-toggle"
+            type="button"
+            aria-label="İngilizceye geç"
+            data-hover-label="İngilizceye geç"
+          >
+            TR
+          </button>
+          <button
+            class="icon-btn"
+            id="help-btn"
+            type="button"
+            aria-label="Yardım"
+            data-hover-label="Yardım"
+          >
+            <span class="help-btn-mark">?</span>
           </button>
           <button
             class="icon-btn"
@@ -95,10 +113,12 @@
                 id="replay-audio-btn"
                 aria-label="Kuş sesini dinle"
                 data-hover-label="Kuş sesini dinle"
+                aria-pressed="false"
+                data-audio-state="idle"
                 disabled
               >
                 <svg
-                  class="replay-audio-icon"
+                  class="replay-audio-icon replay-audio-icon-play"
                   viewBox="0 0 24 24"
                   focusable="false"
                   aria-hidden="true"
@@ -106,6 +126,15 @@
                   <path
                     d="M16.6582 9.28638C18.098 10.1862 18.8178 10.6361 19.0647 11.2122C19.2803 11.7152 19.2803 12.2847 19.0647 12.7878C18.8178 13.3638 18.098 13.8137 16.6582 14.7136L9.896 18.94C8.29805 19.9387 7.49907 20.4381 6.83973 20.385C6.26501 20.3388 5.73818 20.0469 5.3944 19.584C5 19.053 5 18.1108 5 16.2264V7.77357C5 5.88919 5 4.94701 5.3944 4.41598C5.73818 3.9531 6.26501 3.66111 6.83973 3.6149C7.49907 3.5619 8.29805 4.06126 9.896 5.05998L16.6582 9.28638Z"
                   />
+                </svg>
+                <svg
+                  class="replay-audio-icon replay-audio-icon-pause"
+                  viewBox="0 0 24 24"
+                  focusable="false"
+                  aria-hidden="true"
+                >
+                  <rect x="7" y="5" width="3.6" height="14" rx="1.2" />
+                  <rect x="13.4" y="5" width="3.6" height="14" rx="1.2" />
                 </svg>
               </button>
               <button
@@ -132,7 +161,9 @@
               tanıyacaksın.
             </p>
             <div class="info-links">
-              <span class="info-links-title">Daha fazla bilgi için</span>
+              <span class="info-links-title" id="info-links-title"
+                >Daha fazla bilgi için:</span
+              >
               <div class="info-link-buttons">
                 <a
                   id="info-ebird-link"
@@ -152,7 +183,7 @@
                 >
               </div>
             </div>
-            <p class="info-audio-credit">
+            <p class="info-audio-credit" id="info-audio-credit">
               Bütün kuş sesleri için trakus.org kütüphanesi kullanılmıştır.
             </p>
           </div>
@@ -174,64 +205,130 @@
             type="button"
             class="onboarding-close"
             id="onboarding-close-btn"
-            aria-label="Onboarding penceresini kapat"
+            aria-label="Tanıtım penceresini kapat"
           >
             ×
           </button>
           <h3 id="onboarding-title">
-            Çevrendeki kuşları keşfetmeye hazır mısın? 🐦
+            <span class="onboarding-title-icon" aria-hidden="true">
+              <img src="./assets/binoculars-svgrepo-com_v1-green.svg" alt="" />
+            </span>
+            <span id="onboarding-title-text"
+              >Kuşları keşfetmeye hazır mısın?</span
+            >
           </h3>
-          <p class="onboarding-text">
-            Kartları eşleştirerek kuşları keşfet. Her doğru eşleşmede kuşun sesi
-            ve kısa bir bilgisi gösterilir.
+          <p class="onboarding-text onboarding-lead" id="onboarding-lead">
+            Fotoğraf ve isim kartlarını eşleştir, kuşları yakından tanı!
           </p>
-          <div class="onboarding-section">
-            <h4 class="onboarding-section-title">Nasıl oynanır</h4>
-            <ul class="onboarding-list">
-              <li>Her turda iki kart açılır.</li>
-              <li>Aynı kuşu bulursan eşleşme olur.</li>
-              <li>Tüm kuşları en az hamleyle eşleştirmeye çalış.</li>
-            </ul>
-          </div>
-          <div class="onboarding-section">
-            <h4 class="onboarding-section-title">Kontroller</h4>
-            <ul class="onboarding-list onboarding-controls-list">
-              <li class="onboarding-control-item">
-                <span class="onboarding-control-icon" aria-hidden="true">
-                  <img src="./assets/bird-prints-clean.svg" alt="" />
-                </span>
-                Hamle sayısı
-              </li>
-              <li class="onboarding-control-item">
-                <span class="onboarding-control-icon" aria-hidden="true">
-                  <img src="./assets/binoculars-svgrepo-com_v1.svg" alt="" />
-                </span>
-                Eşleşme sayısı
-              </li>
-              <li class="onboarding-control-item">
-                <span class="onboarding-control-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                    <path d="M4 10v4h3l5 4V6L7 10H4z" />
-                    <path d="M16 9.5a3.5 3.5 0 010 5" />
-                    <path d="M18.8 7a7 7 0 010 10" />
-                  </svg>
-                </span>
-                Kuş seslerini aç / kapat
-              </li>
-              <li class="onboarding-control-item">
-                <span class="onboarding-control-icon" aria-hidden="true">
-                  <img src="./assets/refresh-cw-alt-svgrepo-com.svg" alt="" />
-                </span>
-                Oyunu yeniden başlat
-              </li>
-            </ul>
+          <p class="onboarding-text" id="onboarding-text">
+            Her doğru eşleşmede kuşun sesini duyabilir, bilgilerini
+            öğrenebilirsin.
+          </p>
+          <p class="onboarding-text onboarding-note" id="onboarding-note">
+            <span class="onboarding-note-icon" aria-hidden="true">✦</span>
+            <strong>Unutma: Kartlardan biri görsel, diğeri isim olacak.</strong>
+          </p>
+          <div class="onboarding-section onboarding-overview-grid">
+            <div class="onboarding-overview-col">
+              <h4
+                class="onboarding-section-title"
+                id="onboarding-controls-title"
+              >
+                Kontroller
+              </h4>
+              <ul class="onboarding-demo-controls">
+                <li class="onboarding-demo-row">
+                  <button
+                    type="button"
+                    class="icon-btn onboarding-demo-icon-btn onboarding-demo-sound"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  >
+                    <span
+                      class="sound-toggle-icon sound-icon-on"
+                      aria-hidden="true"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        focusable="false"
+                        aria-hidden="true"
+                      >
+                        <path d="M4 10v4h3l5 4V6L7 10H4z" />
+                        <path d="M16 9.5a3.5 3.5 0 010 5" />
+                        <path d="M18.8 7a7 7 0 010 10" />
+                      </svg>
+                    </span>
+                  </button>
+                  <span id="onboarding-control-sound"
+                    >Kuş sesini aç / kapat</span
+                  >
+                </li>
+                <li class="onboarding-demo-row">
+                  <button
+                    type="button"
+                    class="icon-btn onboarding-demo-icon-btn onboarding-demo-lang"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  >
+                    TR
+                  </button>
+                  <span id="onboarding-control-lang">Dil değiştir</span>
+                </li>
+                <li class="onboarding-demo-row">
+                  <button
+                    type="button"
+                    class="icon-btn onboarding-demo-icon-btn onboarding-demo-restart"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  >
+                    <span class="restart-btn-icon" aria-hidden="true">
+                      <svg
+                        viewBox="0 0 24 24"
+                        focusable="false"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M21 12C21 16.9706 16.9706 21 12 21C9.69494 21 7.59227 20.1334 6 18.7083L3 16M3 12C3 7.02944 7.02944 3 12 3C14.3051 3 16.4077 3.86656 18 5.29168L21 8M3 21V16M3 16H8M21 3V8M21 8H16"
+                        />
+                      </svg>
+                    </span>
+                  </button>
+                  <span id="onboarding-control-restart"
+                    >Oyunu yeniden başlat</span
+                  >
+                </li>
+              </ul>
+            </div>
+            <div class="onboarding-overview-col onboarding-overview-col-score">
+              <h4 class="onboarding-section-title" id="onboarding-score-title">
+                İlerleme
+              </h4>
+              <div class="onboarding-score-list">
+                <div class="stat-chip onboarding-score-chip" aria-hidden="true">
+                  <span class="stat-icon stat-icon-moves" aria-hidden="true">
+                    <img src="./assets/bird-prints-clean.svg" alt="" />
+                  </span>
+                  <span class="stat-value" id="onboarding-score-moves"
+                    >Hamle sayısı</span
+                  >
+                </div>
+                <div class="stat-chip onboarding-score-chip" aria-hidden="true">
+                  <span class="stat-icon stat-icon-matches" aria-hidden="true">
+                    <img src="./assets/binoculars-svgrepo-com_v1.svg" alt="" />
+                  </span>
+                  <span class="stat-value" id="onboarding-score-matches"
+                    >Eşleşme sayısı</span
+                  >
+                </div>
+              </div>
+            </div>
           </div>
           <button
             type="button"
             class="onboarding-start-btn"
             id="onboarding-start-btn"
           >
-            Oyuna başla
+            Kuş gözlemine başla
           </button>
         </div>
       </div>
@@ -251,25 +348,31 @@
           >
             ×
           </button>
-          <h3 id="end-title"><span aria-hidden="true">🎉</span> Tebrikler!</h3>
+          <h3 id="end-title">
+            <span aria-hidden="true">🎉</span>
+            <span id="end-title-text">Tebrikler!</span>
+          </h3>
           <p class="end-result" id="end-result"></p>
           <div class="end-actions">
             <button type="button" class="end-restart-btn" id="end-restart-btn">
               <span class="end-btn-icon" aria-hidden="true">
                 <img src="./assets/refresh-cw-alt-svgrepo-com.svg" alt="" />
               </span>
-              Yeniden başlat
+              <span id="end-restart-label">Yeniden başlat</span>
             </button>
             <button type="button" class="end-observe-btn" id="end-observe-btn">
               <span class="end-btn-icon" aria-hidden="true">
-                <img src="./assets/binoculars-svgrepo-com_v1.svg" alt="" />
+                <img
+                  src="./assets/open-eye-see-watch-observe-svgrepo-com.svg"
+                  alt=""
+                />
               </span>
-              Kuşları gözlemle
+              <span id="end-observe-label">Kuşları incele</span>
             </button>
           </div>
         </div>
       </div>
     </div>
-    <script src="./scripts/main.js?v=20260307-5"></script>
+    <script src="./scripts/main.js?v=20260308-10"></script>
   </body>
 </html>

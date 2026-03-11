@@ -837,6 +837,18 @@ main {
   }
 }
 
+@keyframes matched-pop-mobile {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.015);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @keyframes matched-star-burst {
   0% {
     opacity: 0;
@@ -1391,7 +1403,7 @@ main {
 }
 
 .onboarding-overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
   display: grid;
   place-items: center;
@@ -1868,16 +1880,20 @@ main {
 }
 
 .end-overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
   display: grid;
   place-items: center;
-  padding: 8px;
+  padding: max(12px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
   background: rgba(21, 31, 27, 0.18);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.18s ease;
   z-index: 80;
+  overflow-y: auto;
 }
 
 .end-overlay.show {
@@ -2139,6 +2155,7 @@ main {
   }
 
   .card-front {
+    position: relative;
     outline: 1px solid rgba(35, 49, 43, 0.06);
     background: linear-gradient(
       135deg,
@@ -2147,8 +2164,17 @@ main {
     );
   }
 
+  .card-front::before {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 251, 245, 0.08) 100%
+    );
+  }
+
   .card-back {
     padding: 6px;
+    background: #f6f6f2;
   }
 
   .card-image-wrapper {
@@ -2159,6 +2185,14 @@ main {
     box-shadow:
       0 0 0 1px var(--match-color, rgba(90, 120, 104, 0.72)),
       0 7px 12px rgba(26, 36, 31, 0.12);
+  }
+
+  .card.match-pop .card-inner {
+    animation: none;
+  }
+
+  .card.match-pop {
+    animation: matched-pop-mobile 280ms ease-out;
   }
 
   .card {
@@ -2196,6 +2230,14 @@ main {
 
   .info-panel.collapsed {
     gap: 0;
+  }
+
+  .end-overlay {
+    align-items: center;
+  }
+
+  .end-modal {
+    margin: auto;
   }
 }
 

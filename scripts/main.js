@@ -165,6 +165,7 @@ const replayAudioBtn = document.getElementById("replay-audio-btn");
 const infoToggleBtn = document.getElementById("info-toggle");
 const infoMobileMq = window.matchMedia("(max-width: 768px)");
 let infoExpanded = true;
+let hasUserChosenInfoExpanded = false;
 let infoPanelUpdateTimeout = null;
 let currentInfoBird = null;
 const endOverlayEl = document.getElementById("end-overlay");
@@ -449,6 +450,7 @@ function setInfoEmptyState() {
   updateReplayAudioButtonUI();
   infoPanelEl.classList.add("is-empty-state");
   infoPanelEl.classList.remove("updated");
+  updateInfoToggleVisibility();
 }
 
 function applyLanguage() {
@@ -606,8 +608,10 @@ function getBirdCreditsHtml(bird) {
   )}" target="_blank" rel="noopener noreferrer">${source}</a>`;
 }
 
-function setInfoExpanded(nextExpanded) {
+function setInfoExpanded(nextExpanded, options = {}) {
+  const { userInitiated = false } = options;
   infoExpanded = nextExpanded;
+  if (userInitiated) hasUserChosenInfoExpanded = true;
   infoToggleBtn.setAttribute("aria-expanded", String(infoExpanded));
   infoToggleBtn.textContent = infoExpanded
     ? t("infoToggleHide")
@@ -620,13 +624,17 @@ function setInfoExpanded(nextExpanded) {
   }
 }
 
+function updateInfoToggleVisibility() {
+  infoToggleBtn.hidden = !infoMobileMq.matches || !currentInfoBird;
+}
+
 function syncInfoPanelMode() {
   if (infoMobileMq.matches) {
-    infoToggleBtn.hidden = false;
+    updateInfoToggleVisibility();
     infoPanelEl.classList.toggle("collapsed", !infoExpanded);
     infoPanelEl.style.removeProperty("--board-height");
   } else {
-    infoToggleBtn.hidden = true;
+    updateInfoToggleVisibility();
     infoPanelEl.classList.remove("collapsed");
     syncInfoPanelHeight();
   }
@@ -749,6 +757,7 @@ function resetGame() {
   clearTimeout(endOverlayTimeout);
   endOverlayTimeout = null;
   hideEndOverlay();
+  hasUserChosenInfoExpanded = false;
   setInfoEmptyState();
   setInfoExpanded(!infoMobileMq.matches);
   syncInfoPanelMode();
@@ -869,7 +878,7 @@ function hexToRgba(hex, a = 1) {
 
 function showBirdInfo(bird, options = {}) {
   const { animate = false } = options;
-  if (infoMobileMq.matches && !infoExpanded) {
+  if (infoMobileMq.matches && !infoExpanded && !hasUserChosenInfoExpanded) {
     setInfoExpanded(true);
   }
   const primaryName = getBirdPrimaryName(bird);
@@ -889,6 +898,7 @@ function showBirdInfo(bird, options = {}) {
   updateReplayAudioButtonUI();
   infoPanelEl.classList.remove("is-empty-state");
   infoVisualEl.classList.remove("is-empty");
+  updateInfoToggleVisibility();
 
   if (animate) {
     const accent = hexToRgba(bird.color || "#4f7c67", 0.62);
@@ -1045,7 +1055,7 @@ replayAudioBtn.addEventListener("click", () => {
   playBirdSound(currentInfoBird, { force: true });
 });
 infoToggleBtn.addEventListener("click", () => {
-  setInfoExpanded(!infoExpanded);
+  setInfoExpanded(!infoExpanded, { userInitiated: true });
 });
 infoMobileMq.addEventListener("change", syncInfoPanelMode);
 window.addEventListener("resize", syncInfoPanelHeight);

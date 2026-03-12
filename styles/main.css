@@ -2202,6 +2202,7 @@ main {
   .subtitle {
     font-size: 0.8rem;
     line-height: 1.25;
+    margin-top: 3px;
   }
 
   .stats {

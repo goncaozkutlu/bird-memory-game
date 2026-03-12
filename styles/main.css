@@ -1470,6 +1470,8 @@ main {
   display: inline-flex;
   align-items: center;
   gap: 9px;
+  padding-right: 42px;
+  line-height: 1.2;
 }
 
 .onboarding-title-icon {
@@ -2177,19 +2179,19 @@ main {
   }
 
   header {
-    gap: 2px;
+    gap: 4px;
   }
 
   .title-block {
-    grid-template-columns: 58px minmax(0, 1fr);
+    grid-template-columns: 60px minmax(0, 1fr);
     column-gap: 6px;
     row-gap: 0;
   }
 
   .brand-mark {
-    width: 58px;
-    height: 58px;
-    flex-basis: 58px;
+    width: 60px;
+    height: 60px;
+    flex-basis: 60px;
   }
 
   h1 {
@@ -2203,7 +2205,11 @@ main {
   }
 
   .stats {
-    margin-top: -4px;
+    margin-top: -2px;
+  }
+
+  .onboarding-modal {
+    padding-top: 22px;
   }
 
   main {

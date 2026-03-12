@@ -1433,7 +1433,7 @@ main {
   display: grid;
   place-items: center;
   padding: 10px;
-  background: rgba(21, 31, 27, 0.18);
+  background: rgba(21, 31, 27, 0.22);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
@@ -1449,13 +1449,15 @@ main {
   position: relative;
   width: 100%;
   max-width: 520px;
-  background: rgba(255, 255, 255, 0.93);
-  border: 1px solid rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.965);
+  border: 1px solid rgba(255, 255, 255, 0.84);
   border-radius: 22px;
   padding: 18px 18px 16px;
   box-shadow:
     0 0 0 8px rgba(255, 255, 255, 0.55),
     0 18px 40px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(14px) saturate(1.08);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1506,10 +1508,14 @@ main {
 
 .onboarding-note {
   font-weight: 400;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 2px 0 6px;
+  padding: 12px 14px;
+  background: var(--card-secondary-bg);
+  border: 1px solid rgba(186, 208, 224, 0.72);
+  border-radius: 16px;
 }
 
 .onboarding-note strong {
@@ -1523,6 +1529,7 @@ main {
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
+  margin-top: 1px;
   transform: translateY(-0.5px);
   font-size: 1.02rem;
   line-height: 1;
@@ -1846,10 +1853,9 @@ main {
 .onboarding-modal.is-experimental #onboarding-note {
   margin-top: 10px;
   margin-bottom: 10px;
-  background: #f0f9f1;
-  border: 1.5px solid #c3e0c6;
-  border-radius: 12px;
-  padding: 10px 12px;
+  border-width: 1px;
+  border-radius: 16px;
+  padding: 12px 14px;
 }
 
 .onboarding-modal.is-experimental .onboarding-section {
@@ -2168,6 +2174,36 @@ main {
     border-radius: 14px;
     padding: var(--sp-1) var(--sp-1) var(--sp-2);
     max-height: none;
+  }
+
+  header {
+    gap: 2px;
+  }
+
+  .title-block {
+    grid-template-columns: 58px minmax(0, 1fr);
+    column-gap: 6px;
+    row-gap: 0;
+  }
+
+  .brand-mark {
+    width: 58px;
+    height: 58px;
+    flex-basis: 58px;
+  }
+
+  h1 {
+    font-size: 1.22rem;
+    line-height: 1.05;
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+    line-height: 1.25;
+  }
+
+  .stats {
+    margin-top: -4px;
   }
 
   main {

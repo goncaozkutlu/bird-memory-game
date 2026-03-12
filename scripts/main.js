@@ -231,7 +231,7 @@ if (onboardingOverlayEl && onboardingModalEl) {
 
 const translations = {
   tr: {
-    pageTitle: "Bird Memory Game 🐦",
+    pageTitle: "Bird Memory Game",
     gameTitle: "Bird Memory Game",
     gameSubtitle: "Çevrendeki kuşları keşfet, hafızanı test et!",
     statMoves: "Hamle",
@@ -285,7 +285,7 @@ const translations = {
       "Harika! Bu gözlemi {moves} hamlede tamamladın. Kişisel rekorun <strong>{best}</strong>. Bir kez daha denemeye ne dersin?",
   },
   en: {
-    pageTitle: "Bird Memory Game 🐦",
+    pageTitle: "Bird Memory Game",
     gameTitle: "Bird Memory Game",
     gameSubtitle: "Discover birds around you and test your memory!",
     statMoves: "Moves",

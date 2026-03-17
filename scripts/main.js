@@ -217,6 +217,20 @@ let endOverlayTimeout = null;
 const END_OVERLAY_DELAY_AFTER_MATCH_MS = 250;
 const ENABLE_COLLECT_FLY_ANIMATION = false;
 
+function isAnalyticsEnabled() {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.gtag === "function" &&
+    typeof window.BIRD_MEMORY_GA_ID === "string" &&
+    window.BIRD_MEMORY_GA_ID !== "G-XXXXXXXXXX"
+  );
+}
+
+function trackEvent(eventName, params = {}) {
+  if (!isAnalyticsEnabled()) return;
+  window.gtag("event", eventName, params);
+}
+
 if (onboardingOverlayEl && onboardingModalEl) {
   const useExperimentalOnboarding = ONBOARDING_VARIANT === "experimental";
   onboardingOverlayEl.classList.toggle(
@@ -394,6 +408,7 @@ function getInitialLanguage() {
 }
 
 function setLanguage(nextLang) {
+  const previousLang = currentLang;
   currentLang = nextLang === "en" ? "en" : "tr";
   try {
     localStorage.setItem(LANG_PREF_KEY, currentLang);
@@ -407,6 +422,10 @@ function setLanguage(nextLang) {
   } else {
     setInfoEmptyState();
   }
+  trackEvent("language_changed", {
+    previous_language: previousLang,
+    language: currentLang,
+  });
 }
 
 function t(key) {
@@ -771,6 +790,10 @@ function resetGame() {
   createCards();
   renderBoard();
   syncInfoPanelHeight();
+  trackEvent("game_started", {
+    bird_count: birds.length,
+    language: currentLang,
+  });
 }
 
 function onCardClick(e) {
@@ -795,6 +818,11 @@ function onCardClick(e) {
 
   cardEl.classList.add("flipped");
   flippedIndices.push(index);
+  trackEvent("card_flipped", {
+    bird_id: cards[index].birdId,
+    card_type: cards[index].type,
+    move_number: moves + (flippedIndices.length === 2 ? 1 : 0),
+  });
 
   if (flippedIndices.length === 2) {
     moves++;
@@ -836,6 +864,12 @@ function checkMatch() {
 
     matches++;
     matchesEl.textContent = matches;
+    trackEvent("bird_match", {
+      bird_id: bird.id,
+      bird_name: bird.englishName || bird.name,
+      moves,
+      matches,
+    });
 
     showBirdInfo(bird, { animate: true });
     playMatchCollectAnimation(bird);
@@ -902,6 +936,11 @@ function showBirdInfo(bird, options = {}) {
   infoPanelEl.classList.remove("is-empty-state");
   infoVisualEl.classList.remove("is-empty");
   updateInfoToggleVisibility();
+  trackEvent("bird_info_viewed", {
+    bird_id: bird.id,
+    bird_name: bird.englishName || bird.name,
+    source: gameOver ? "post_game" : animate ? "match" : "manual",
+  });
 
   if (animate) {
     const accent = hexToRgba(bird.color || "#4f7c67", 0.62);
@@ -967,6 +1006,14 @@ function endGame() {
     .forEach((cardEl) => (cardEl.disabled = false));
   const previousBestMoves = getBestMoves();
   const isNewRecord = previousBestMoves === null || moves < previousBestMoves;
+  trackEvent("game_completed", {
+    moves,
+    matches,
+    bird_count: birds.length,
+    previous_best_moves: previousBestMoves ?? "",
+    is_new_record: isNewRecord,
+    language: currentLang,
+  });
   const currentMovesHtml = `<strong>${moves}</strong>`;
 
   if (isNewRecord) {
@@ -1012,12 +1059,18 @@ function hideEndOverlay() {
 function showOnboarding() {
   onboardingOverlayEl.classList.add("show");
   onboardingOverlayEl.setAttribute("aria-hidden", "false");
+  trackEvent("onboarding_opened", {
+    language: currentLang,
+  });
 }
 
 function hideOnboarding() {
   onboardingOverlayEl.classList.remove("show");
   onboardingOverlayEl.setAttribute("aria-hidden", "true");
   markOnboardingSeen();
+  trackEvent("onboarding_closed", {
+    language: currentLang,
+  });
 }
 
 restartBtn.addEventListener("click", resetGame);
@@ -1033,6 +1086,9 @@ soundToggleBtn.addEventListener("click", () => {
   } catch {
     // Ignore storage restrictions.
   }
+  trackEvent("sound_toggled", {
+    enabled: isSoundEnabled,
+  });
 });
 endRestartBtn.addEventListener("click", resetGame);
 endObserveBtn.addEventListener("click", hideEndOverlay);
@@ -1057,12 +1113,23 @@ replayAudioBtn.addEventListener("click", () => {
   if (!currentInfoBird?.audio) return;
   if (isCurrentInfoBirdAudioPlaying()) {
     stopActiveBirdAudio();
+    trackEvent("bird_audio_stopped", {
+      bird_id: currentInfoBird.id,
+      bird_name: currentInfoBird.englishName || currentInfoBird.name,
+    });
     return;
   }
   playBirdSound(currentInfoBird, { force: true });
+  trackEvent("bird_audio_replayed", {
+    bird_id: currentInfoBird.id,
+    bird_name: currentInfoBird.englishName || currentInfoBird.name,
+  });
 });
 infoToggleBtn.addEventListener("click", () => {
   setInfoExpanded(!infoExpanded, { userInitiated: true });
+  trackEvent("info_panel_toggled", {
+    expanded: infoExpanded,
+  });
 });
 infoMobileMq.addEventListener("change", syncInfoPanelMode);
 window.addEventListener("resize", syncInfoPanelHeight);

@@ -14,6 +14,32 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles/main.css?v=20260312-03" />
+    <script>
+      window.BIRD_MEMORY_GA_ID = "G-9H8XP3X2LN";
+    </script>
+    <script>
+      (function initBirdMemoryAnalytics() {
+        const measurementId = window.BIRD_MEMORY_GA_ID;
+        if (!measurementId || measurementId === "G-XXXXXXXXXX") return;
+
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function gtag() {
+          window.dataLayer.push(arguments);
+        };
+
+        const gaScript = document.createElement("script");
+        gaScript.async = true;
+        gaScript.src =
+          "https://www.googletagmanager.com/gtag/js?id=" +
+          encodeURIComponent(measurementId);
+        document.head.appendChild(gaScript);
+
+        window.gtag("js", new Date());
+        window.gtag("config", measurementId, {
+          send_page_view: true,
+        });
+      })();
+    </script>
   </head>
   <body class="theme-2">
     <div class="game-wrapper">
